@@ -24,12 +24,18 @@ public class Auto {
     private final Fahrer fahrer;
 
     private Reifen aktuelleReifen;
-    private AutoStatus status;
-    private int aktuelleRunde;
-    private int aktuellerAbschnittId;
-    private double fortschrittImAbschnitt;
+    private volatile AutoStatus status;
+    private volatile int aktuelleRunde;
+    private volatile int aktuellerAbschnittId;
+    private volatile double fortschrittImAbschnitt;
     private int anzahlPitstops;
     private boolean pflichtPitstopErledigt;
+
+
+    // Volatile Flags fuer Thread-Kommunikation (Push-Modell)
+    private volatile boolean pitstopAngefordert;
+    private volatile ReifenTyp angefordertReifenTyp;
+    private volatile boolean imZiel;
 
     // Position auf der GUI (wird berechnet)
     private double positionX;
@@ -74,13 +80,21 @@ public class Auto {
         this.fahrer = fahrer;
 
         // Standardwerte setzen
-        this.aktuelleReifen = new Reifen(ReifenTyp.MEDIUM);
+        // Zufaelligen Startreifentyp waehlen
+        ReifenTyp[] typen = ReifenTyp.values();
+        ReifenTyp zufaelligerTyp = typen[(int) (Math.random() * typen.length)];
+        this.aktuelleReifen = new Reifen(zufaelligerTyp);
         this.status = AutoStatus.IN_STARTAUFSTELLUNG;
         this.aktuelleRunde = 0;
         this.aktuellerAbschnittId = 0;
         this.fortschrittImAbschnitt = 0.0;
         this.anzahlPitstops = 0;
         this.pflichtPitstopErledigt = false;
+
+        // Volatile Flags initialisieren
+        this.pitstopAngefordert = false;
+        this.angefordertReifenTyp = null;
+        this.imZiel = false;
 
         this.positionX = 0.0;
         this.positionY = 0.0;
@@ -123,7 +137,7 @@ public class Auto {
         // Pflicht-Pitstop noch nicht erledigt und genuegend Runden uebrig
         if (!pflichtPitstopErledigt && verbleibendeRunden > 3) {
             // Pflicht-Pitstop spätestens wenn 10 Runden uebrig
-            if (verbleibendeRunden <= 10) {
+            if (verbleibendeRunden <= 5) {
                 return true;
             }
         }
@@ -165,13 +179,22 @@ public class Auto {
      * @Nachbedingung Auto ist im Startzustand mit frischen Medium-Reifen
      */
     public void zuruecksetzen() {
-        this.aktuelleReifen = new Reifen(ReifenTyp.MEDIUM);
+        // Zufaelligen Startreifentyp waehlen
+        ReifenTyp[] typen = ReifenTyp.values();
+        ReifenTyp zufaelligerTyp = typen[(int) (Math.random() * typen.length)];
+        this.aktuelleReifen = new Reifen(zufaelligerTyp);
         this.status = AutoStatus.IN_STARTAUFSTELLUNG;
         this.aktuelleRunde = 0;
         this.aktuellerAbschnittId = 0;
         this.fortschrittImAbschnitt = 0.0;
         this.anzahlPitstops = 0;
         this.pflichtPitstopErledigt = false;
+
+        // Volatile Flags zuruecksetzen
+        this.pitstopAngefordert = false;
+        this.angefordertReifenTyp = null;
+        this.imZiel = false;
+
         this.startzeit = 0;
         this.letzteRundenzeit = 0;
         this.besteRundenzeit = Long.MAX_VALUE;
@@ -310,6 +333,98 @@ public class Auto {
     public String toString() {
         return String.format("#%d %s (%s)", startnummer, fahrer.getName(), team.getName());
     }
+
+
+    // ========== Volatile Flag Methoden fuer Thread-Kommunikation ==========
+
+    /**
+     * Fordert einen Pitstop mit dem angegebenen Reifentyp an.
+     * Diese Methode wird vom RennstallThread aufgerufen (Push-Modell).
+     * Der AutoThread liest das Flag und fuehrt den Pitstop aus.
+     *
+     * @Vorbedingung reifenTyp darf nicht null sein
+     * @Nachbedingung pitstopAngefordert ist true
+     * @Nachbedingung angefordertReifenTyp ist gesetzt
+     *
+     * @param reifenTyp Der gewuenschte Reifentyp fuer den Wechsel
+     * @throws IllegalArgumentException wenn reifenTyp null ist
+     */
+    public void fordertPitstopAn(ReifenTyp reifenTyp) {
+        if (reifenTyp == null) {
+            throw new IllegalArgumentException("Reifentyp darf nicht null sein");
+        }
+        this.angefordertReifenTyp = reifenTyp;
+        this.pitstopAngefordert = true;  // volatile Write - muss nach reifenTyp kommen!
+    }
+
+    /**
+     * Prueft ob ein Pitstop angefordert wurde.
+     * Diese Methode wird vom AutoThread aufgerufen um zu pruefen,
+     * ob ein Pitstop durchgefuehrt werden soll.
+     *
+     * @Vorbedingung Keine
+     * @Nachbedingung Rueckgabewert zeigt Pitstop-Anforderungs-Status
+     *
+     * @return true wenn ein Pitstop angefordert wurde
+     */
+    public boolean istPitstopAngefordert() {
+        return pitstopAngefordert;  // volatile Read
+    }
+
+    /**
+     * Gibt den angeforderten Reifentyp zurueck und setzt das Flag zurueck.
+     * Diese Methode wird vom AutoThread aufgerufen wenn er den Pitstop durchfuehrt.
+     *
+     * @Vorbedingung pitstopAngefordert muss true sein
+     * @Nachbedingung pitstopAngefordert ist false
+     * @Nachbedingung angefordertReifenTyp ist null
+     *
+     * @return Der angeforderte Reifentyp
+     */
+    public ReifenTyp holeAngefordertReifenTypUndReset() {
+        ReifenTyp typ = this.angefordertReifenTyp;
+        this.angefordertReifenTyp = null;
+        this.pitstopAngefordert = false;  // volatile Write - muss zuletzt kommen!
+        return typ;
+    }
+
+    /**
+     * Gibt den angeforderten Reifentyp zurueck ohne das Flag zurueckzusetzen.
+     *
+     * @Vorbedingung Keine
+     * @Nachbedingung Keine Aenderung am Zustand
+     *
+     * @return Der angeforderte Reifentyp oder null
+     */
+    public ReifenTyp getAngefordertReifenTyp() {
+        return angefordertReifenTyp;
+    }
+
+    /**
+     * Markiert das Auto als im Ziel angekommen.
+     * Diese Methode wird vom AutoThread aufgerufen wenn alle Runden absolviert sind.
+     *
+     * @Vorbedingung Keine
+     * @Nachbedingung imZiel ist true
+     * @Nachbedingung status ist IM_ZIEL
+     */
+    public void setzeImZiel() {
+        this.status = AutoStatus.IM_ZIEL;
+        this.imZiel = true;  // volatile Write
+    }
+
+    /**
+     * Prueft ob das Auto im Ziel ist.
+     *
+     * @Vorbedingung Keine
+     * @Nachbedingung Rueckgabewert zeigt Ziel-Status
+     *
+     * @return true wenn das Auto das Rennen beendet hat
+     */
+    public boolean istImZiel() {
+        return imZiel;  // volatile Read
+    }
+
 
     @Override
     public boolean equals(Object obj) {
