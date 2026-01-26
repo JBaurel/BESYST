@@ -62,9 +62,33 @@ public final class RennLogger {
     private static PrintWriter dateiWriter = null;
     private static boolean debugAktiv = false;
 
+    // Callback fuer GUI-Integration
+    private static LogCallback logCallback = null;
+
+    /**
+     * Callback-Interface fuer GUI-Benachrichtigungen bei Log-Nachrichten.
+     */
+    @FunctionalInterface
+    public interface LogCallback {
+        void onLogNachricht(String formatierteNachricht);
+    }
+
     // Privater Konstruktor verhindert Instanziierung
     private RennLogger() {
         // Utility-Klasse
+    }
+
+    /**
+     * Setzt den Callback fuer GUI-Benachrichtigungen.
+     * Bei jeder Log-Nachricht (INFO oder hoeher) wird dieser Callback aufgerufen.
+     *
+     * @Vorbedingung Keine
+     * @Nachbedingung logCallback ist gesetzt
+     *
+     * @param callback Der Callback oder null zum Entfernen
+     */
+    public static void setLogCallback(LogCallback callback) {
+        logCallback = callback;
     }
 
     /**
@@ -236,6 +260,15 @@ public final class RennLogger {
 
         if (dateiAusgabe && dateiWriter != null) {
             dateiWriter.println(formatierteNachricht);
+        }
+
+        // GUI-Callback aufrufen (nur fuer INFO und hoeher)
+        if (logCallback != null && level.getPriority() >= LogLevel.INFO.getPriority()) {
+            try {
+                logCallback.onLogNachricht(formatierteNachricht);
+            } catch (Exception e) {
+                // Callback-Fehler ignorieren um Log-Schleifen zu vermeiden
+            }
         }
     }
 

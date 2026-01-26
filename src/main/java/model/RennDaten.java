@@ -3,7 +3,7 @@ package model;
 import model.enumType.AutoStatus;
 import model.enumType.RennStatus;
 
-import java.awt.*;
+import javafx.scene.paint.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -72,7 +72,7 @@ public class RennDaten {
         // Red Bull Racing
         Fahrer verstappen = new Fahrer("Max Verstappen", "VER", 98);
         Fahrer perez = new Fahrer("Sergio Perez", "PER", 85);
-        Team redBull = new Team("Red Bull Racing", Color.getHSBColor(0.66F, 1, 0.55F), verstappen, perez);
+        Team redBull = new Team("Red Bull Racing", Color.DARKBLUE, verstappen, perez);
         teams.add(redBull);
         autos.add(new Auto(startnummer++, redBull, verstappen));
         autos.add(new Auto(startnummer++, redBull, perez));
@@ -90,7 +90,7 @@ public class RennDaten {
         // Mercedes
         Fahrer hamilton = new Fahrer("Lewis Hamilton", "HAM", 96);
         Fahrer russell = new Fahrer("George Russell", "RUS", 91);
-        Team mercedes = new Team("Mercedes", Color.getHSBColor(0, 0, 0.75F), hamilton, russell);
+        Team mercedes = new Team("Mercedes", Color.TEAL, hamilton, russell);
         teams.add(mercedes);
         autos.add(new Auto(startnummer++, mercedes, hamilton));
         autos.add(new Auto(startnummer++, mercedes, russell));
@@ -108,7 +108,7 @@ public class RennDaten {
         // Aston Martin
         Fahrer alonso = new Fahrer("Fernando Alonso", "ALO", 93);
         Fahrer stroll = new Fahrer("Lance Stroll", "STR", 78);
-        Team astonMartin = new Team("Aston Martin", Color.getHSBColor(0.33F, 1, 0.39F), alonso, stroll);
+        Team astonMartin = new Team("Aston Martin", Color.DARKGREEN, alonso, stroll);
         teams.add(astonMartin);
         autos.add(new Auto(startnummer++, astonMartin, alonso));
         autos.add(new Auto(startnummer++, astonMartin, stroll));
@@ -117,7 +117,7 @@ public class RennDaten {
         // Alpine
         Fahrer gasly = new Fahrer("Pierre Gasly", "GAS", 84);
         Fahrer ocon = new Fahrer("Esteban Ocon", "OCO", 82);
-        Team alpine = new Team("Alpine", Color.getHSBColor(0.54F, 1, 1), gasly, ocon);
+        Team alpine = new Team("Alpine", Color.HOTPINK, gasly, ocon);
         teams.add(alpine);
         autos.add(new Auto(startnummer++, alpine, gasly));
         autos.add(new Auto(startnummer++, alpine, ocon));
@@ -126,7 +126,7 @@ public class RennDaten {
         // Williams
         Fahrer albon = new Fahrer("Alexander Albon", "ALB", 83);
         Fahrer sargeant = new Fahrer("Logan Sargeant", "SAR", 72);
-        Team williams = new Team("Williams", Color.getHSBColor(0.54F, 0.25F, 0.90F), albon, sargeant);
+        Team williams = new Team("Williams", Color.LIGHTBLUE, albon, sargeant);
         teams.add(williams);
         autos.add(new Auto(startnummer++, williams, albon));
         autos.add(new Auto(startnummer++, williams, sargeant));
@@ -135,7 +135,7 @@ public class RennDaten {
         // AlphaTauri / RB
         Fahrer tsunoda = new Fahrer("Yuki Tsunoda", "TSU", 80);
         Fahrer ricciardo = new Fahrer("Daniel Ricciardo", "RIC", 81);
-        Team alphaTauri = new Team("RB", Color.getHSBColor(0.67F, 0.78F, 0.44F), tsunoda, ricciardo);
+        Team alphaTauri = new Team("RB", Color.MIDNIGHTBLUE, tsunoda, ricciardo);
         teams.add(alphaTauri);
         autos.add(new Auto(startnummer++, alphaTauri, tsunoda));
         autos.add(new Auto(startnummer++, alphaTauri, ricciardo));
@@ -144,7 +144,7 @@ public class RennDaten {
         // Alfa Romeo / Stake
         Fahrer bottas = new Fahrer("Valtteri Bottas", "BOT", 86);
         Fahrer zhou = new Fahrer("Zhou Guanyu", "ZHO", 76);
-        Team alfaRomeo = new Team("Stake", Color.getHSBColor(0, 1, 0.55F), bottas, zhou);
+        Team alfaRomeo = new Team("Stake", Color.GREEN, bottas, zhou);
         teams.add(alfaRomeo);
         autos.add(new Auto(startnummer++, alfaRomeo, bottas));
         autos.add(new Auto(startnummer++, alfaRomeo, zhou));
@@ -153,7 +153,7 @@ public class RennDaten {
         // Haas
         Fahrer magnussen = new Fahrer("Kevin Magnussen", "MAG", 79);
         Fahrer hulkenberg = new Fahrer("Nico Huelkenberg", "HUL", 82);
-        Team haas = new Team("Haas", Color.getHSBColor(0, 0, 0.83F), magnussen, hulkenberg);
+        Team haas = new Team("Haas", Color.LIGHTGRAY, magnussen, hulkenberg);
         teams.add(haas);
         autos.add(new Auto(startnummer++, haas, magnussen));
         autos.add(new Auto(startnummer++, haas, hulkenberg));

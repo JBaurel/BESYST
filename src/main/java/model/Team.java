@@ -1,6 +1,6 @@
 package model;
 
-import java.awt.*;
+import javafx.scene.paint.Color;
 
 /**
  * Repraesentiert ein Formel-1-Rennteam mit zwei Fahrern.
