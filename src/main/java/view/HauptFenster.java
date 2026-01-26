@@ -37,7 +37,7 @@ public class HauptFenster extends Application {
 
     // Fenstergroesse
     private static final int FENSTER_BREITE = 1400;
-    private static final int FENSTER_HOEHE = 900;
+    private static final int FENSTER_HOEHE = 700;
 
     // Controller
     private RennController controller;
