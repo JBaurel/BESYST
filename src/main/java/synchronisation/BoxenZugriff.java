@@ -118,7 +118,6 @@ public class BoxenZugriff {
             RennLogger.logSync("BOX_EINFAHRT",
                     team.getName() + " - " + auto.getFahrer().getKuerzel());
 
-            /
             aktuellesAuto = auto;
             gewaehlterReifenTyp = reifenTyp;
             serviceAngefordert = true;
