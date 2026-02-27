@@ -48,7 +48,7 @@ public class StartFreigabe {
     private final AtomicBoolean fehlstartErkannt;
     private int aktiveLichter;
 
-    // Callback fuer GUI-Updates
+
     private StartSequenzListener listener;
 
     /**
@@ -133,7 +133,7 @@ public class StartFreigabe {
         RennLogger.logSync("START_BEREIT",
                 auto.getFahrer().getKuerzel() + " (" + nummer + "/" + anzahlAutos + ")");
 
-        // Warte auf die Startfreigabe
+
         startLatch.await();
 
         RennLogger.logSync("GESTARTET", auto.getFahrer().getKuerzel());
@@ -200,7 +200,7 @@ public class StartFreigabe {
 
         RennLogger.info("Startampel-Sequenz startet");
 
-        // Lichter nacheinander einschalten
+
         for (int i = 1; i <= ANZAHL_LICHTER; i++) {
             aktiveLichter = i;
             RennLogger.info("Startampel: Licht " + i + " AN");
@@ -212,7 +212,7 @@ public class StartFreigabe {
             Thread.sleep(LICHT_INTERVALL_MS);
         }
 
-        // Zufaellige Verzoegerung vor der Freigabe (wie in der echten F1)
+
         long verzoegerung = MIN_FREIGABE_VERZOEGERUNG_MS +
                 (long) (Math.random() * (MAX_FREIGABE_VERZOEGERUNG_MS - MIN_FREIGABE_VERZOEGERUNG_MS));
 
@@ -263,12 +263,9 @@ public class StartFreigabe {
             throw new IllegalArgumentException("Auto darf nicht null sein");
         }
 
-        // Ein Fehlstart liegt vor wenn das Auto sich bewegt bevor die Freigabe erfolgt
-        // In dieser Implementierung ist das technisch nicht moeglich, da die Threads
-        // auf den Latch warten. Die Methode ist fuer zukuenftige Erweiterungen vorgesehen.
 
         if (!startFreigegeben.get() && aktiveLichter == ANZAHL_LICHTER) {
-            // Theoretisch koennte hier Bewegung vor Freigabe erkannt werden
+
             fehlstartErkannt.set(true);
             RennLogger.warning("Fehlstart erkannt: " + auto.getFahrer().getKuerzel());
 

@@ -16,10 +16,8 @@ import model.enumType.ReifenTyp;
  */
 public class Reifen {
 
-    /** Schwellenwert ab dem Reifen als kritisch abgenutzt gelten. */
     public static final double KRITISCHE_ABNUTZUNG = 80.0;
 
-    /** Maximale Abnutzung (vollstaendig verschlissen). */
     public static final double MAXIMALE_ABNUTZUNG = 100.0;
 
     private final ReifenTyp typ;

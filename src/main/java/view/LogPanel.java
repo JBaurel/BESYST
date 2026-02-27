@@ -54,9 +54,8 @@ public class LogPanel extends VBox {
             return;
         }
 
-        // Nur wichtige Nachrichten anzeigen (filtern)
         if (sollAngezeigWerden(nachricht)) {
-            // Stellen sicher, dass wir im JavaFX-Thread sind
+
             if (Platform.isFxApplicationThread()) {
                 fuegeNachrichtHinzu(nachricht);
             } else {
@@ -70,7 +69,7 @@ public class LogPanel extends VBox {
      * Filtert technische Debug-Nachrichten heraus.
      */
     private boolean sollAngezeigWerden(String nachricht) {
-        // Immer anzeigen: Rennereignisse
+
         if (nachricht.contains("UEBERHOLT") ||
                 nachricht.contains("Pitstop") ||
                 nachricht.contains("Reifenwechsel") ||
@@ -87,7 +86,7 @@ public class LogPanel extends VBox {
             return true;
         }
 
-        // Nicht anzeigen: Debug-Nachrichten
+
         if (nachricht.contains("[DEBUG]") ||
                 nachricht.contains("SYNC") ||
                 nachricht.contains("Monitor") ||
@@ -97,7 +96,7 @@ public class LogPanel extends VBox {
             return false;
         }
 
-        // Standard: INFO und WARNING anzeigen
+
         return nachricht.contains("[INFO]") || nachricht.contains("[WARNING]") || nachricht.contains("[ERROR]");
     }
 

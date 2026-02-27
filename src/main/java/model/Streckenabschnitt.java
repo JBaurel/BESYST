@@ -23,7 +23,7 @@ public class Streckenabschnitt {
     private final int kapazitaet;
     private final boolean istUeberholzone;
 
-    // Koordinaten fuer die GUI-Darstellung (normalisiert 0.0 bis 1.0)
+
     private final double startX;
     private final double startY;
     private final double endeX;

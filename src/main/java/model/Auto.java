@@ -30,16 +30,13 @@ public class Auto {
     private boolean pflichtPitstopErledigt;
 
 
-    // Volatile Flags fuer Thread-Kommunikation
     private volatile boolean pitstopAngefordert;
     private volatile ReifenTyp angefordertReifenTyp;
     private volatile boolean imZiel;
 
-    // Position auf der GUI
     private double positionX;
     private double positionY;
 
-    // Zeiterfassung
     private long startzeit;
     private long letzteRundenzeit;
     private long besteRundenzeit;
@@ -77,8 +74,7 @@ public class Auto {
         this.team = team;
         this.fahrer = fahrer;
 
-        // Standardwerte
-        // Zufaelligen Startreifentyp
+
         ReifenTyp[] typen = ReifenTyp.values();
         ReifenTyp zufaelligerTyp = typen[(int) (Math.random() * typen.length)];
         this.aktuelleReifen = new Reifen(zufaelligerTyp);
@@ -89,7 +85,7 @@ public class Auto {
         this.anzahlPitstops = 0;
         this.pflichtPitstopErledigt = false;
 
-        // Volatile Flags initialisieren
+
         this.pitstopAngefordert = false;
         this.angefordertReifenTyp = null;
         this.imZiel = false;
@@ -128,16 +124,16 @@ public class Auto {
      * @return true wenn ein Pitstop empfohlen wird
      */
     public boolean istPitstopEmpfohlen(int verbleibendeRunden) {
-        // Pflicht-Pitstop noch nicht erledigt und genuegend Runden uebrig
+
         if (!pflichtPitstopErledigt && verbleibendeRunden > 3) {
             if (verbleibendeRunden <= 5) {
                 return true;
             }
         }
 
-        // Reifen kritisch abgenutzt
+
         if (aktuelleReifen.istKritischAbgenutzt()) {
-            return verbleibendeRunden > 2; // Nur wenn sich der Stopp noch lohnt
+            return verbleibendeRunden > 2;
         }
 
         return false;
@@ -171,7 +167,7 @@ public class Auto {
      * @Nachbedingung Auto ist im Startzustand mit frischen Medium-Reifen
      */
     public void zuruecksetzen() {
-        // Zufaelligen Startreifentyp waehlen
+
         ReifenTyp[] typen = ReifenTyp.values();
         ReifenTyp zufaelligerTyp = typen[(int) (Math.random() * typen.length)];
         this.aktuelleReifen = new Reifen(zufaelligerTyp);
@@ -182,7 +178,7 @@ public class Auto {
         this.anzahlPitstops = 0;
         this.pflichtPitstopErledigt = false;
 
-        // Volatile Flags zuruecksetzen
+
         this.pitstopAngefordert = false;
         this.angefordertReifenTyp = null;
         this.imZiel = false;
@@ -344,7 +340,7 @@ public class Auto {
             throw new IllegalArgumentException("Reifentyp darf nicht null sein");
         }
         this.angefordertReifenTyp = reifenTyp;
-        this.pitstopAngefordert = true;  // volatile Write - muss nach reifenTyp kommen!
+        this.pitstopAngefordert = true;
     }
 
     /**
@@ -358,7 +354,7 @@ public class Auto {
      * @return true wenn ein Pitstop angefordert wurde
      */
     public boolean istPitstopAngefordert() {
-        return pitstopAngefordert;  // volatile Read
+        return pitstopAngefordert;
     }
 
     /**
@@ -374,7 +370,7 @@ public class Auto {
     public ReifenTyp holeAngefordertReifenTypUndReset() {
         ReifenTyp typ = this.angefordertReifenTyp;
         this.angefordertReifenTyp = null;
-        this.pitstopAngefordert = false;  // volatile Write - muss zuletzt kommen!
+        this.pitstopAngefordert = false;
         return typ;
     }
 
@@ -400,7 +396,7 @@ public class Auto {
      */
     public void setzeImZiel() {
         this.status = AutoStatus.IM_ZIEL;
-        this.imZiel = true;  // volatile Write
+        this.imZiel = true;
     }
 
     /**
@@ -412,7 +408,7 @@ public class Auto {
      * @return true wenn das Auto das Rennen beendet hat
      */
     public boolean istImZiel() {
-        return imZiel;  // volatile Read
+        return imZiel;
     }
 
 

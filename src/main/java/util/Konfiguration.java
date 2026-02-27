@@ -241,7 +241,7 @@ public final class Konfiguration {
                 (long) (Math.random() * (MAX_PITSTOP_DAUER_MS - MIN_PITSTOP_DAUER_MS));
     }
 
-    // Privater Konstruktor verhindert Instanziierung
+
     private Konfiguration() {
         // Utility-Klasse
     }

@@ -35,7 +35,7 @@ public class RennstallThread extends Thread {
     private final Auto auto2;
     private final RennDaten rennDaten;
 
-    // Steuerungsflags
+
     private volatile boolean running;
     private volatile boolean rennBeendet;
 
@@ -96,18 +96,16 @@ public class RennstallThread extends Thread {
                 "Rennstall " + team.getName() + " Strategie-Thread gestartet");
 
         try {
-            // Warten bis das Rennen gestartet ist
             while (running && rennDaten.getStatus() != RennStatus.LAEUFT) {
                 Thread.sleep(100);
             }
 
-            // Strategie-Schleife
             while (running && !rennBeendet) {
-                // Strategie fuer beide Autos pruefen
+
                 pruefeStrategieFuerAuto(auto1);
                 pruefeStrategieFuerAuto(auto2);
 
-                // Pause zwischen Strategie-Checks
+
                 long checkIntervall = Konfiguration.skaliereZeit(
                         Konfiguration.STRATEGIE_CHECK_INTERVALL_MS,
                         rennDaten.getSimulationsGeschwindigkeit());
@@ -137,7 +135,6 @@ public class RennstallThread extends Thread {
             return;
         }
 
-        // Wenn bereits ein Pitstop angefordert ist, nichts tun
         if (auto.istPitstopAngefordert()) {
             return;
         }
@@ -146,20 +143,19 @@ public class RennstallThread extends Thread {
         int gesamtRunden = rennDaten.getStrecke().getAnzahlRunden();
         int verbleibendeRunden = gesamtRunden - aktuelleRunde;
 
-        // Pruefen ob ein Pitstop noetig/sinnvoll ist
+
         boolean pitstopNoetig = false;
         String grund = "";
 
-        // Grund 1: Pflicht-Pitstop noch nicht erledigt
         if (!auto.isPflichtPitstopErledigt()) {
-            // Pruefen ob wir im Pitstop-Fenster sind
+
             if (Konfiguration.istImPitstopFenster(aktuelleRunde, gesamtRunden)) {
-                // Spätestens bei 5 Runden vor Ende den Pflicht-Pitstop machen
+
                 if (verbleibendeRunden <= Konfiguration.PFLICHT_PITSTOP_RUNDEN_VOR_ENDE) {
                     pitstopNoetig = true;
                     grund = "Pflicht-Pitstop (letzte Chance)";
                 }
-                // Oder wenn die Reifen schlecht genug sind
+
                 else if (auto.getAktuelleReifen().getAbnutzungProzent() >= 60) {
                     pitstopNoetig = true;
                     grund = "Pflicht-Pitstop (Reifen bei " +
@@ -168,9 +164,8 @@ public class RennstallThread extends Thread {
             }
         }
 
-        // Grund 2: Reifen kritisch abgenutzt (auch nach Pflicht-Pitstop)
         if (!pitstopNoetig && auto.getAktuelleReifen().istKritischAbgenutzt()) {
-            // Nur wenn sich der Stopp noch lohnt (mehr als 2 Runden uebrig)
+
             if (verbleibendeRunden > 2) {
                 pitstopNoetig = true;
                 grund = "Kritische Reifenabnutzung (" +
@@ -178,7 +173,7 @@ public class RennstallThread extends Thread {
             }
         }
 
-        // Wenn Pitstop noetig, den passenden Reifentyp waehlen und anfordern
+
         if (pitstopNoetig) {
             ReifenTyp neuerTyp = waehleReifenTyp(verbleibendeRunden);
 
@@ -187,7 +182,7 @@ public class RennstallThread extends Thread {
                             " -> Pitstop angefordert! Grund: " + grund +
                             ", Neue Reifen: " + neuerTyp);
 
-            // Pitstop anfordern (volatile Write)
+
             auto.fordertPitstopAn(neuerTyp);
         }
     }
@@ -250,8 +245,6 @@ public class RennstallThread extends Thread {
         return sb.toString();
     }
 
-    // ========== Steuerungsmethoden ==========
-
     /**
      * Stoppt den Thread sicher.
      *
@@ -274,7 +267,6 @@ public class RennstallThread extends Thread {
         this.rennBeendet = true;
     }
 
-    // ========== Getter ==========
 
     /**
      * Gibt das Team dieses Strategie-Threads zurueck.

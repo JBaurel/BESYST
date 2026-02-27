@@ -32,7 +32,7 @@ public class RennstandTabelle extends TableView<RennstandTabelle.RennstandZeile>
 
         erstelleSpalten();
 
-        // Tabellen-Eigenschaften
+
         setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         setPrefHeight(400);
     }
@@ -145,7 +145,7 @@ public class RennstandTabelle extends TableView<RennstandTabelle.RennstandZeile>
             return "Führer";
         }
 
-        // In Sekunden-artige Darstellung umrechnen
+
         double sekunden = rueckstand / 1000.0;
         if (sekunden < 10) {
             return String.format("+%.1fs", sekunden);
@@ -189,7 +189,7 @@ public class RennstandTabelle extends TableView<RennstandTabelle.RennstandZeile>
             this.pitstops = new SimpleIntegerProperty(pitstops);
         }
 
-        // Getter fuer PropertyValueFactory
+
         public int getPosition() { return position.get(); }
         public String getFahrer() { return fahrer.get(); }
         public String getTeam() { return team.get(); }
@@ -199,7 +199,7 @@ public class RennstandTabelle extends TableView<RennstandTabelle.RennstandZeile>
         public String getReifenZustand() { return reifenZustand.get(); }
         public int getPitstops() { return pitstops.get(); }
 
-        // Property-Getter
+
         public SimpleIntegerProperty positionProperty() { return position; }
         public SimpleStringProperty fahrerProperty() { return fahrer; }
         public SimpleStringProperty teamProperty() { return team; }

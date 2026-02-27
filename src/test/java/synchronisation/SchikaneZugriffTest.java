@@ -49,15 +49,15 @@ class SchikaneZugriffTest {
      */
     @BeforeEach
     void setUp() {
-        // Schikane mit Kapazitaet 2 erstellen
+
         schikane = new Streckenabschnitt(
                 7, "Schumacher-S", StreckenabschnittTyp.SCHIKANE,
-                45, 0.40, 0.50, 0.50, 2  // Kapazitaet = 2
+                45, 0.40, 0.50, 0.50, 2
         );
 
         schikaneZugriff = new SchikaneZugriff(schikane);
 
-        // Test-Autos erstellen
+
         testAutos = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             Fahrer f1 = new Fahrer("Fahrer " + i + "a", "F" + i + "A", 80);
@@ -92,7 +92,7 @@ class SchikaneZugriffTest {
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch fertigLatch = new CountDownLatch(ANZAHL_THREADS);
 
-        // Drei Threads erstellen
+
         for (int i = 0; i < ANZAHL_THREADS; i++) {
             final Auto auto = testAutos.get(i);
 
@@ -102,11 +102,11 @@ class SchikaneZugriffTest {
 
                     schikaneZugriff.einfahren(auto);
 
-                    // Zaehler aktualisieren
+
                     int aktuell = gleichzeitigInSchikane.incrementAndGet();
                     maxGleichzeitig.updateAndGet(max -> Math.max(max, aktuell));
 
-                    // In der Schikane bleiben
+
                     Thread.sleep(150);
 
                     gleichzeitigInSchikane.decrementAndGet();
@@ -122,13 +122,13 @@ class SchikaneZugriffTest {
             thread.start();
         }
 
-        // Alle Threads gleichzeitig starten
+
         startLatch.countDown();
 
-        // Auf alle Threads warten
+
         boolean fertig = fertigLatch.await(5, TimeUnit.SECONDS);
 
-        // ASSERTIONS
+
         assertTrue(fertig, "Alle Threads sollten fertig werden");
         assertEquals(2, maxGleichzeitig.get(),
                 "Die Semaphore hat Kapazitaet 2, also duerfen maximal 2 Autos gleichzeitig " +
@@ -162,14 +162,14 @@ class SchikaneZugriffTest {
         Auto auto2 = testAutos.get(1);
         Auto auto3 = testAutos.get(2);
 
-        // Thread 1: Faehrt ein und bleibt lange
+
         Thread thread1 = new Thread(() -> {
             try {
                 schikaneZugriff.einfahren(auto1);
                 ereignisse.add("Auto1 eingefahren");
                 beideEingefahren.countDown();
 
-                Thread.sleep(300);  // Lange in der Schikane bleiben
+                Thread.sleep(300);
 
                 ereignisse.add("Auto1 faehrt aus");
                 schikaneZugriff.ausfahren(auto1);
@@ -181,14 +181,14 @@ class SchikaneZugriffTest {
             }
         }, "AutoThread-1");
 
-        // Thread 2: Faehrt ein und bleibt lange
+
         Thread thread2 = new Thread(() -> {
             try {
                 schikaneZugriff.einfahren(auto2);
                 ereignisse.add("Auto2 eingefahren");
                 beideEingefahren.countDown();
 
-                Thread.sleep(500);  // Noch laenger bleiben
+                Thread.sleep(500);
 
                 ereignisse.add("Auto2 faehrt aus");
                 schikaneZugriff.ausfahren(auto2);
@@ -200,14 +200,14 @@ class SchikaneZugriffTest {
             }
         }, "AutoThread-2");
 
-        // Thread 3: Wartet bis beide drin sind, dann versucht einzufahren
+
         Thread thread3 = new Thread(() -> {
             try {
-                beideEingefahren.await();  // Warten bis beide drin sind
+                beideEingefahren.await();
                 Thread.sleep(50);
 
                 ereignisse.add("Auto3 versucht einzufahren");
-                schikaneZugriff.einfahren(auto3);  // Sollte blockieren!
+                schikaneZugriff.einfahren(auto3);
                 ereignisse.add("Auto3 eingefahren");
 
                 schikaneZugriff.ausfahren(auto3);
@@ -226,15 +226,15 @@ class SchikaneZugriffTest {
 
         boolean fertig = fertigLatch.await(5, TimeUnit.SECONDS);
 
-        // ASSERTIONS
+
         assertTrue(fertig, "Alle Threads sollten fertig werden");
 
-        // Auto 3 darf erst einfahren NACHDEM Auto 1 oder Auto 2 ausgefahren ist
+
         int auto3EingefahrenIndex = ereignisse.indexOf("Auto3 eingefahren");
         int auto1AusgefahrenIndex = ereignisse.indexOf("Auto1 faehrt aus");
         int auto2AusgefahrenIndex = ereignisse.indexOf("Auto2 faehrt aus");
 
-        // Mindestens eines der ersten Autos muss vor Auto 3 ausgefahren sein
+
         boolean korrekteReihenfolge =
                 (auto1AusgefahrenIndex < auto3EingefahrenIndex) ||
                         (auto2AusgefahrenIndex < auto3EingefahrenIndex);
@@ -265,29 +265,26 @@ class SchikaneZugriffTest {
         Auto auto2 = testAutos.get(1);
         Auto auto3 = testAutos.get(2);
 
-        // Schikane fuellen
+
         schikaneZugriff.einfahren(auto1);
         schikaneZugriff.einfahren(auto2);
 
-        // Jetzt ist die Schikane voll (Zaehler = 0)
-
-        // Thread der die Schikane nach einer Weile freigibt
         Thread freigeberThread = new Thread(() -> {
             try {
-                Thread.sleep(300);  // Warten
-                schikaneZugriff.ausfahren(auto1);  // Erst dann freigeben
+                Thread.sleep(300);
+                schikaneZugriff.ausfahren(auto1);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         });
         freigeberThread.start();
 
-        // Auto 3 versucht mit kurzem Timeout einzufahren
+
         long startZeit = System.currentTimeMillis();
         boolean erfolgreich = schikaneZugriff.einfahrenMitTimeout(auto3, 100);
         long dauer = System.currentTimeMillis() - startZeit;
 
-        // ASSERTIONS
+
         assertFalse(erfolgreich,
                 "einfahrenMitTimeout() sollte false zurueckgeben, da das Timeout (100ms) " +
                         "ablaeuft bevor ein Platz frei wird (300ms). " +
@@ -296,7 +293,7 @@ class SchikaneZugriffTest {
         assertTrue(dauer >= 90 && dauer < 200,
                 "Die Methode sollte etwa 100ms warten bevor sie aufgibt. Tatsaechlich: " + dauer + "ms");
 
-        // Aufraeumen
+
         freigeberThread.join();
         schikaneZugriff.ausfahren(auto2);
     }

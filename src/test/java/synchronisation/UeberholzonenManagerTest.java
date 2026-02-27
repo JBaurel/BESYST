@@ -52,13 +52,13 @@ class UeberholzonenManagerTest {
     void setUp() {
         manager = new UeberholzonenManager();
 
-        // DRS-Zone erstellen
+
         drsZone = new Streckenabschnitt(
                 1, "DRS-Zone 1", StreckenabschnittTyp.DRS_ZONE,
                 50, 0.10, 0.15, 0.15, 20
         );
 
-        // Test-Autos erstellen
+
         testAutos = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
             Fahrer f1 = new Fahrer("Fahrer " + i + "a", "F" + i + "A", 80 + i * 2);
@@ -94,7 +94,7 @@ class UeberholzonenManagerTest {
         CountDownLatch alleLesen = new CountDownLatch(ANZAHL_LESER);
         CountDownLatch fertigLatch = new CountDownLatch(ANZAHL_LESER);
 
-        // Erst einige Ueberholungen durchfuehren damit es was zu lesen gibt
+
         Auto auto1 = testAutos.get(0);
         Auto auto2 = testAutos.get(1);
         manager.versucheUeberholung(auto1, auto2, drsZone, 500);
@@ -104,21 +104,20 @@ class UeberholzonenManagerTest {
                 try {
                     startLatch.await();
 
-                    // Lesevorgang beginnen
+
                     int aktuell = gleichzeitigLesend.incrementAndGet();
                     maxGleichzeitig.updateAndGet(max -> Math.max(max, aktuell));
 
-                    // Signalisieren dass wir lesen
+
                     alleLesen.countDown();
 
-                    // Auf andere Leser warten (um gleichzeitiges Lesen zu garantieren)
+
                     alleLesen.await();
 
-                    // Statistiken lesen (verwendet readLock intern)
+
                     long versuche = manager.getGesamtVersuche();
                     double erfolge = manager.getErfolgsquote();
 
-                    // Kurz lesen
                     Thread.sleep(50);
 
                     gleichzeitigLesend.decrementAndGet();
@@ -136,7 +135,7 @@ class UeberholzonenManagerTest {
         startLatch.countDown();
         boolean fertig = fertigLatch.await(5, TimeUnit.SECONDS);
 
-        // ASSERTIONS
+
         assertTrue(fertig, "Alle Leser-Threads sollten fertig werden");
         assertEquals(ANZAHL_LESER, maxGleichzeitig.get(),
                 "Alle " + ANZAHL_LESER + " Leser sollten GLEICHZEITIG lesen koennen! " +
@@ -167,7 +166,7 @@ class UeberholzonenManagerTest {
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch fertigLatch = new CountDownLatch(2);
 
-        // Schreiber-Thread: Fuehrt viele Ueberholungen durch
+
         Thread schreiberThread = new Thread(() -> {
             try {
                 startLatch.await();
@@ -187,7 +186,7 @@ class UeberholzonenManagerTest {
             }
         }, "SchreiberThread");
 
-        // Leser-Thread: Prueft wiederholt die Konsistenz der Statistiken
+
         Thread leserThread = new Thread(() -> {
             try {
                 startLatch.await();
@@ -196,7 +195,7 @@ class UeberholzonenManagerTest {
                     long versuche = manager.getGesamtVersuche();
                     double erfolge = manager.getErfolgsquote();
                     long fehlschlaege = manager.getFehlgeschlageneVersuche();
-                    // Konsistenzpruefung: Versuche = Erfolge + Fehlschlaege
+
                     if (versuche != erfolge + fehlschlaege) {
                         inkonsistenzGefunden.set(true);
                         System.err.println("INKONSISTENZ: " + versuche + " != " +
@@ -219,14 +218,14 @@ class UeberholzonenManagerTest {
         startLatch.countDown();
         boolean fertig = fertigLatch.await(10, TimeUnit.SECONDS);
 
-        // ASSERTIONS
+
         assertTrue(fertig, "Beide Threads sollten fertig werden");
         assertFalse(inkonsistenzGefunden.get(),
                 "Keine Inkonsistenz sollte gefunden werden. " +
                         "Das ReadWriteLock garantiert, dass Schreiboperationen atomar sind " +
                         "und Leser nie Zwischenzustaende sehen.");
 
-        // Abschliessende Konsistenzpruefung
+
         long versuche = manager.getGesamtVersuche();
         double erfolge = manager.getErfolgsquote();
         long fehlschlaege = manager.getFehlgeschlageneVersuche();

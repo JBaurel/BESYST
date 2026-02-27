@@ -38,22 +38,21 @@ public class StartAmpelView extends VBox {
         setPadding(new Insets(5, 15, 5, 15));
         setStyle("-fx-background-color: #333333; -fx-background-radius: 10;");
 
-        // Beschriftung
         Label titel = new Label("Startampel");
         titel.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 10px;");
 
-        // Lichter-Container
+
         HBox lichterBox = new HBox(10);
         lichterBox.setAlignment(Pos.CENTER);
 
-        // Lichter erstellen
+
         lichter = new Circle[ANZAHL_LICHTER];
         for (int i = 0; i < ANZAHL_LICHTER; i++) {
             lichter[i] = erstelleLicht();
             lichterBox.getChildren().add(lichter[i]);
         }
 
-        // Status-Label
+
         statusLabel = new Label("Bereit");
         statusLabel.setStyle("-fx-text-fill: #aaaaaa; -fx-font-size: 10px;");
 
@@ -69,7 +68,7 @@ public class StartAmpelView extends VBox {
         licht.setStroke(Color.rgb(100, 100, 100));
         licht.setStrokeWidth(2);
 
-        // Leichter 3D-Effekt
+
         licht.setStyle("-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 3, 0, 1, 1);");
 
         return licht;

@@ -20,13 +20,12 @@ import java.util.List;
  */
 public class Rennstrecke {
 
-    /** Standardanzahl der Runden. */
+
     public static final int DEFAULT_RUNDENANZAHL = 30;
 
-    /** Minimale Rundenanzahl. */
+
     public static final int MIN_RUNDEN = 20;
 
-    /** Maximale Rundenanzahl. */
     public static final int MAX_RUNDEN = 50;
 
     private final String name;
@@ -225,110 +224,104 @@ public class Rennstrecke {
     public static Rennstrecke erstelleNuerburgring() {
         Rennstrecke strecke = new Rennstrecke("Nuerburgring GP");
 
-        // Abschnitt 0: Start/Ziel-Gerade
         strecke.addAbschnitt(new Streckenabschnitt(
                 0, "Start/Ziel", StreckenabschnittTyp.START_ZIEL,
                 400, 0.15, 0.50, 0.35, 0.50
         ));
 
-        // Abschnitt 1: DRS-Zone 1 (vor Yokohama-S)
         strecke.addAbschnitt(new Streckenabschnitt(
                 1, "DRS-Zone 1", StreckenabschnittTyp.DRS_ZONE,
                 300, 0.35, 0.50, 0.50, 0.50
         ));
 
-        // Abschnitt 2: Yokohama-S (Teil 1) - Enge Kurve 1
         strecke.addAbschnitt(new Streckenabschnitt(
                 2, "Yokohama-S", StreckenabschnittTyp.ENGE_KURVE,
                 150, 1, false, 0.50, 0.50, 0.55, 0.40
         ));
 
-        // Abschnitt 3: Mercedes-Arena
+
         strecke.addAbschnitt(new Streckenabschnitt(
                 3, "Mercedes-Arena", StreckenabschnittTyp.NORMALE_KURVE,
                 250, 0.55, 0.40, 0.65, 0.35
         ));
 
-        // Abschnitt 4: Verbindungsgerade
+
         strecke.addAbschnitt(new Streckenabschnitt(
                 4, "Verbindungsgerade", StreckenabschnittTyp.GERADE,
                 350, 0.65, 0.35, 0.80, 0.35
         ));
 
-        // Abschnitt 5: Ford-Kurve - Enge Kurve 2
+
         strecke.addAbschnitt(new Streckenabschnitt(
                 5, "Ford-Kurve", StreckenabschnittTyp.ENGE_KURVE,
                 180, 1, false, 0.80, 0.35, 0.85, 0.45
         ));
 
-        // Abschnitt 6: Dunlop-Kehre - Enge Kurve 3
+
         strecke.addAbschnitt(new Streckenabschnitt(
                 6, "Dunlop-Kehre", StreckenabschnittTyp.ENGE_KURVE,
                 120, 1, false, 0.85, 0.45, 0.85, 0.55
         ));
 
-        // Abschnitt 7: Michael-Schumacher-S (Schikane)
+
         strecke.addAbschnitt(new Streckenabschnitt(
                 7, "Schumacher-S", StreckenabschnittTyp.SCHIKANE,
                 200, 0.85, 0.55, 0.80, 0.65
         ));
 
-        // Abschnitt 8: DRS-Zone 2
         strecke.addAbschnitt(new Streckenabschnitt(
                 8, "DRS-Zone 2", StreckenabschnittTyp.DRS_ZONE,
                 280, 0.80, 0.65, 0.65, 0.70
         ));
 
-        // Abschnitt 9: Bit-Kurve - Enge Kurve 4
+
         strecke.addAbschnitt(new Streckenabschnitt(
                 9, "Bit-Kurve", StreckenabschnittTyp.ENGE_KURVE,
                 140, 1, false, 0.65, 0.70, 0.55, 0.75
         ));
 
-        // Abschnitt 10: Haseroeder-Kurve
+
         strecke.addAbschnitt(new Streckenabschnitt(
                 10, "Haseroeder-Kurve", StreckenabschnittTyp.NORMALE_KURVE,
                 200, 0.55, 0.75, 0.45, 0.75
         ));
 
-        // Abschnitt 11: Coca-Cola-Kurve - Enge Kurve 5
+
         strecke.addAbschnitt(new Streckenabschnitt(
                 11, "Coca-Cola-Kurve", StreckenabschnittTyp.ENGE_KURVE,
                 160, 1, false, 0.45, 0.75, 0.35, 0.70
         ));
 
-        // Abschnitt 12: DRS-Zone 3 (Rueckgerade)
         strecke.addAbschnitt(new Streckenabschnitt(
                 12, "DRS-Zone 3", StreckenabschnittTyp.DRS_ZONE,
                 450, 0.35, 0.70, 0.20, 0.60
         ));
 
-        // Abschnitt 13: Veedol-Schikane
+
         strecke.addAbschnitt(new Streckenabschnitt(
                 13, "Veedol-Schikane", StreckenabschnittTyp.SCHIKANE,
                 180, 0.20, 0.60, 0.15, 0.55
         ));
 
-        // Abschnitt 14: Letzte Kurve vor Start/Ziel
+
         strecke.addAbschnitt(new Streckenabschnitt(
                 14, "Letzte Kurve", StreckenabschnittTyp.NORMALE_KURVE,
                 150, 0.15, 0.55, 0.15, 0.50
         ));
 
-        // Pitstop-Bereich (parallel zur Hauptstrecke)
-        // Abschnitt 15: Pitstop-Einfahrt
+
         strecke.addAbschnitt(new Streckenabschnitt(
                 15, "Pitstop-Einfahrt", StreckenabschnittTyp.PITSTOP_EINFAHRT,
                 100, 0.20, 0.50, 0.25, 0.48
         ));
 
-        // Abschnitt 16: Boxengasse
+
         strecke.addAbschnitt(new Streckenabschnitt(
                 16, "Boxengasse", StreckenabschnittTyp.BOXENGASSE,
                 300, 0.25, 0.48, 0.45, 0.48
         ));
 
-        // Abschnitt 17: Pitstop-Ausfahrt
+
         strecke.addAbschnitt(new Streckenabschnitt(
                 17, "Pitstop-Ausfahrt", StreckenabschnittTyp.PITSTOP_AUSFAHRT,
                 100, 0.45, 0.48, 0.50, 0.50

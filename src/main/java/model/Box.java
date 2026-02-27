@@ -121,10 +121,10 @@ public class Box {
      * @return X-Koordinate fuer die GUI (normalisiert)
      */
     public double getGuiX() {
-        // Boxengasse geht von x=0.25 bis x=0.45
+
         double startX = 0.25;
         double endeX = 0.45;
-        double schrittweite = (endeX - startX) / 10.0; // 10 Teams
+        double schrittweite = (endeX - startX) / 10.0;
         return startX + (positionInBoxengasse * schrittweite);
     }
 
@@ -138,7 +138,7 @@ public class Box {
      * @return Y-Koordinate fuer die GUI (normalisiert)
      */
     public double getGuiY() {
-        return 0.48; // Boxengasse liegt bei y=0.48
+        return 0.48;
     }
 
     public Team getTeam() {

@@ -24,13 +24,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class PitstopLaneController {
 
-    /** Maximale Anzahl Autos in der Einfahrt. */
+
     public static final int EINFAHRT_KAPAZITAET = 3;
 
-    /** Maximale Anzahl Autos in der Ausfahrt. */
     public static final int AUSFAHRT_KAPAZITAET = 3;
 
-    /** Geschwindigkeitslimit in der Boxengasse (simulierte Verzoegerung in ms). */
     public static final long BOXENGASSEN_DURCHFAHRT_MS = 3000;
 
     private final Semaphore einfahrtSemaphore;

@@ -62,7 +62,7 @@ public final class RennLogger {
     private static PrintWriter dateiWriter = null;
     private static boolean debugAktiv = false;
 
-    // Callback fuer GUI-Integration
+
     private static LogCallback logCallback = null;
 
     /**
@@ -73,7 +73,7 @@ public final class RennLogger {
         void onLogNachricht(String formatierteNachricht);
     }
 
-    // Privater Konstruktor verhindert Instanziierung
+
     private RennLogger() {
         // Utility-Klasse
     }
@@ -262,12 +262,11 @@ public final class RennLogger {
             dateiWriter.println(formatierteNachricht);
         }
 
-        // GUI-Callback aufrufen (nur fuer INFO und hoeher)
         if (logCallback != null && level.getPriority() >= LogLevel.INFO.getPriority()) {
             try {
                 logCallback.onLogNachricht(formatierteNachricht);
             } catch (Exception e) {
-                // Callback-Fehler ignorieren um Log-Schleifen zu vermeiden
+
             }
         }
     }

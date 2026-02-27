@@ -118,16 +118,15 @@ public class BoxenZugriff {
             RennLogger.logSync("BOX_EINFAHRT",
                     team.getName() + " - " + auto.getFahrer().getKuerzel());
 
-            // Zustand setzen
+            /
             aktuellesAuto = auto;
             gewaehlterReifenTyp = reifenTyp;
             serviceAngefordert = true;
             serviceBeendet = false;
 
-            // Boxencrew signalisieren dass Auto da ist
             autoWartet.signalAll();
 
-            // Warten bis Service abgeschlossen
+
             while (!serviceBeendet) {
                 RennLogger.logSync("WARTEN_AUF_SERVICE", team.getName());
                 serviceAbgeschlossen.await();
@@ -136,7 +135,7 @@ public class BoxenZugriff {
             RennLogger.logSync("SERVICE_ERHALTEN",
                     team.getName() + " - Neue Reifen: " + reifenTyp);
 
-            // Zustand zuruecksetzen
+
             aktuellesAuto = null;
             serviceAngefordert = false;
             serviceLaeuft = false;
@@ -237,7 +236,7 @@ public class BoxenZugriff {
 
             RennLogger.logSync("SERVICE_ABGESCHLOSSEN", team.getName());
 
-            // Auto benachrichtigen dass es weiterfahren kann
+
             serviceAbgeschlossen.signalAll();
 
         } finally {

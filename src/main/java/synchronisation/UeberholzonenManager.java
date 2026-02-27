@@ -30,7 +30,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class UeberholzonenManager {
 
-    // Gewichtung der einzelnen Faktoren (Summe = 1.0)
     private static final double GEWICHT_REIFENZUSTAND = 0.25;
     private static final double GEWICHT_REIFENTYP = 0.15;
     private static final double GEWICHT_DRS = 0.20;
@@ -38,16 +37,15 @@ public class UeberholzonenManager {
     private static final double GEWICHT_FAHRZEUGSCHADEN = 0.15;
     private static final double GEWICHT_FAHRERGESCHICK = 0.10;
 
-    // Basiswahrscheinlichkeit fuer einen erfolgreichen Ueberholversuch
+
     private static final double BASIS_ERFOLGSWAHRSCHEINLICHKEIT = 0.3;
 
-    // Maximale Wahrscheinlichkeit (um unrealistische Werte zu vermeiden)
     private static final double MAX_WAHRSCHEINLICHKEIT = 0.85;
 
     private final ReadWriteLock statistikLock;
     private final Random random;
 
-    // Statistiken
+
     private int gesamtVersuche;
     private int erfolgreicheUeberholungen;
     private int fehlgeschlageneVersuche;
@@ -95,18 +93,18 @@ public class UeberholzonenManager {
             throw new IllegalArgumentException("Zone darf nicht null sein");
         }
 
-        // Berechne Erfolgswahrscheinlichkeit
+
         double wahrscheinlichkeit = berechneErfolgswahrscheinlichkeit(
                 ueberholer, verteidiger, zone, abstandInMs);
 
-        // Wuerfeln ob Ueberholung gelingt
+
         double wurf = random.nextDouble();
         boolean erfolg = wurf < wahrscheinlichkeit;
 
-        // Statistiken aktualisieren
+
         aktualisiereStatistiken(erfolg);
 
-        // Logging
+
         String meldung = String.format(
                 "%s vs %s: Chance=%.1f%%, Wurf=%.1f%%, Ergebnis=%s",
                 ueberholer.getFahrer().getKuerzel(),
@@ -145,49 +143,40 @@ public class UeberholzonenManager {
                                                     Streckenabschnitt zone, long abstandInMs) {
         double wahrscheinlichkeit = BASIS_ERFOLGSWAHRSCHEINLICHKEIT;
 
-        // Faktor 1: Reifenzustand (25%)
-        // Besser erhaltene Reifen des Ueberholers = Vorteil
+
         double reifenDifferenz = verteidiger.getAktuelleReifen().getAbnutzungProzent()
                 - ueberholer.getAktuelleReifen().getAbnutzungProzent();
         double reifenFaktor = (reifenDifferenz / 100.0) * GEWICHT_REIFENZUSTAND;
         wahrscheinlichkeit += reifenFaktor;
 
-        // Faktor 2: Reifentyp (15%)
-        // Weichere Reifen = schneller = Vorteil
         double typUeberholer = ueberholer.getAktuelleReifen().getTyp().getGeschwindigkeitsFaktor();
         double typVerteidiger = verteidiger.getAktuelleReifen().getTyp().getGeschwindigkeitsFaktor();
         double typDifferenz = typUeberholer - typVerteidiger;
         wahrscheinlichkeit += typDifferenz * GEWICHT_REIFENTYP;
 
-        // Faktor 3: DRS (20%)
-        // In einer DRS-Zone erhaelt der Ueberholer einen festen Bonus
+
         if (zone.istUeberholzone()) {
             wahrscheinlichkeit += GEWICHT_DRS;
         }
 
-        // Faktor 4: Windschatten (15%)
-        // Je naeher dran, desto groesser der Vorteil (max bei < 1 Sekunde)
         double windschattenBonus = 0.0;
         if (abstandInMs < 1000) {
-            // Voller Bonus bei < 1 Sekunde
+
             windschattenBonus = GEWICHT_WINDSCHATTEN;
         } else if (abstandInMs < 2000) {
-            // Linearer Abfall zwischen 1-2 Sekunden
+
             windschattenBonus = GEWICHT_WINDSCHATTEN * (2000 - abstandInMs) / 1000.0;
         }
         wahrscheinlichkeit += windschattenBonus;
 
-        // Faktor 5: Fahrzeugschaden (15%)
-        // Nicht implementiert in dieser Version - immer 0
-        // In einer Erweiterung koennte hier der Zustand des Autos einfliessen
 
-        // Faktor 6: Fahrergeschicklichkeit (10%)
+
         double geschickUeberholer = ueberholer.getFahrer().getGeschicklichkeitsFaktor();
         double geschickVerteidiger = verteidiger.getFahrer().getGeschicklichkeitsFaktor();
         double geschickDifferenz = geschickUeberholer - geschickVerteidiger;
         wahrscheinlichkeit += geschickDifferenz * GEWICHT_FAHRERGESCHICK;
 
-        // Begrenze auf sinnvollen Bereich
+
         wahrscheinlichkeit = Math.max(0.05, Math.min(MAX_WAHRSCHEINLICHKEIT, wahrscheinlichkeit));
 
         return wahrscheinlichkeit;

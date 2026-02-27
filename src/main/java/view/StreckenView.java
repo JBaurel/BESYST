@@ -47,14 +47,12 @@ public class StreckenView extends Pane {
     public StreckenView(RennDaten rennDaten) {
         this.rennDaten = rennDaten;
 
-        // Canvas erstellen
         canvas = new Canvas(800, 500);
         gc = canvas.getGraphicsContext2D();
 
-        // Canvas zur Pane hinzufuegen
+
         getChildren().add(canvas);
 
-        // Bei Groessenaenderung neu zeichnen
         widthProperty().addListener((obs, alt, neu) -> {
             canvas.setWidth(neu.doubleValue());
             zeichneStrecke();
@@ -64,7 +62,7 @@ public class StreckenView extends Pane {
             zeichneStrecke();
         });
 
-        // Initiales Zeichnen
+
         zeichneStrecke();
     }
 
@@ -87,23 +85,18 @@ public class StreckenView extends Pane {
         double breite = canvas.getWidth();
         double hoehe = canvas.getHeight();
 
-        // Hintergrund loeschen
-        gc.setFill(Color.rgb(40, 40, 40));  // Dunkelgrau
+
+        gc.setFill(Color.rgb(40, 40, 40));
         gc.fillRect(0, 0, breite, hoehe);
 
-        // Streckenabschnitte zeichnen
         zeichneStreckenabschnitte(breite, hoehe);
 
-        // Boxengasse zeichnen
         zeichneBoxengasse(breite, hoehe);
 
-        // Beschriftungen zeichnen
         zeichneBeschriftungen(breite, hoehe);
 
-        // Autos zeichnen
         zeichneAutos(breite, hoehe);
 
-        // Legende zeichnen
         zeichneLegende(breite, hoehe);
     }
 
@@ -114,7 +107,7 @@ public class StreckenView extends Pane {
         Rennstrecke strecke = rennDaten.getStrecke();
 
         for (Streckenabschnitt abschnitt : strecke.getAbschnitte()) {
-            // Nur Hauptstrecke zeichnen (nicht Pitstop-Bereich)
+
             if (abschnitt.getId() < 15) {
                 zeichneAbschnitt(abschnitt, breite, hoehe);
             }
@@ -125,22 +118,20 @@ public class StreckenView extends Pane {
      * Zeichnet einen einzelnen Streckenabschnitt.
      */
     private void zeichneAbschnitt(Streckenabschnitt abschnitt, double breite, double hoehe) {
-        // Koordinaten umrechnen
+
         double x1 = PADDING + abschnitt.getStartX() * (breite - 2 * PADDING);
         double y1 = PADDING + abschnitt.getStartY() * (hoehe - 2 * PADDING);
         double x2 = PADDING + abschnitt.getEndeX() * (breite - 2 * PADDING);
         double y2 = PADDING + abschnitt.getEndeY() * (hoehe - 2 * PADDING);
 
-        // Farbe basierend auf Typ
+
         Color farbe = getFarbeNachTyp(abschnitt.getTyp());
 
-        // Strecke zeichnen (breite Linie)
         gc.setStroke(farbe);
         gc.setLineWidth(STRECKEN_BREITE);
         gc.setLineCap(javafx.scene.shape.StrokeLineCap.ROUND);
         gc.strokeLine(x1, y1, x2, y2);
 
-        // Mittellinie (gestrichelt, weiss)
         gc.setStroke(Color.WHITE);
         gc.setLineWidth(1);
         gc.setLineDashes(5, 5);
@@ -154,7 +145,6 @@ public class StreckenView extends Pane {
     private void zeichneBoxengasse(double breite, double hoehe) {
         Rennstrecke strecke = rennDaten.getStrecke();
 
-        // Boxengasse-Abschnitte (ID 15, 16, 17)
         for (int id = 15; id <= 17; id++) {
             Streckenabschnitt abschnitt = strecke.getAbschnitt(id);
             if (abschnitt != null) {
@@ -169,18 +159,18 @@ public class StreckenView extends Pane {
             }
         }
 
-        // Boxen-Markierungen zeichnen
+
         List<Box> boxen = rennDaten.getBoxen();
         double boxY = PADDING + 0.48 * (hoehe - 2 * PADDING);
 
         for (Box box : boxen) {
             double boxX = PADDING + (0.25 + box.getPositionInBoxengasse() * 0.02) * (breite - 2 * PADDING);
 
-            // Box-Rechteck
+
             gc.setFill(box.getTeam().getFarbe().darker());
             gc.fillRect(boxX - 5, boxY - 10, 10, 20);
 
-            // Team-Kuerzel
+
             String vollName = box.getTeam().getName();
             String kuerzel = vollName.substring(0, Math.min(vollName.length(), 3)).toUpperCase();
             gc.setFill(Color.WHITE);
@@ -199,7 +189,7 @@ public class StreckenView extends Pane {
         Rennstrecke strecke = rennDaten.getStrecke();
 
         for (Streckenabschnitt abschnitt : strecke.getAbschnitte()) {
-            // Nur wichtige Abschnitte beschriften
+
             if (abschnitt.getTyp() == StreckenabschnittTyp.ENGE_KURVE ||
                     abschnitt.getTyp() == StreckenabschnittTyp.SCHIKANE ||
                     abschnitt.getTyp() == StreckenabschnittTyp.DRS_ZONE ||
@@ -208,13 +198,12 @@ public class StreckenView extends Pane {
                 double x = PADDING + (abschnitt.getStartX() + abschnitt.getEndeX()) / 2 * (breite - 2 * PADDING);
                 double y = PADDING + (abschnitt.getStartY() + abschnitt.getEndeY()) / 2 * (hoehe - 2 * PADDING);
 
-                // Namen kuerzen wenn noetig
+
                 String name = abschnitt.getName();
                 if (name.length() > 15) {
                     name = name.substring(0, 12) + "...";
                 }
 
-                // Offset basierend auf Position
                 double offsetY = -15;
                 if (abschnitt.getStartY() < 0.5) {
                     offsetY = 20;
@@ -224,7 +213,7 @@ public class StreckenView extends Pane {
             }
         }
 
-        // Start/Ziel markieren
+
         gc.setFill(Color.YELLOW);
         gc.setFont(Font.font("Arial", FontWeight.BOLD, 12));
         Streckenabschnitt startZiel = strecke.getAbschnitt(0);
@@ -232,7 +221,7 @@ public class StreckenView extends Pane {
         double startY = PADDING + startZiel.getStartY() * (hoehe - 2 * PADDING);
         gc.fillText("START/ZIEL", startX - 30, startY - 20);
 
-        // Karierte Flagge simulieren
+
         zeichneKarierteFlagge(startX - 5, startY - 40, 30, 15);
     }
 
@@ -255,7 +244,7 @@ public class StreckenView extends Pane {
             }
         }
 
-        // Rahmen
+
         gc.setStroke(Color.BLACK);
         gc.setLineWidth(1);
         gc.strokeRect(x, y, breite, hoehe);
@@ -269,25 +258,23 @@ public class StreckenView extends Pane {
         Rennstrecke strecke = rennDaten.getStrecke();
 
         for (Auto auto : autos) {
-            // Position berechnen
+
             int abschnittId = auto.getAktuellerAbschnittId();
             double fortschritt = auto.getFortschrittImAbschnitt();
 
-            // Fuer negative Fortschritte (Startaufstellung) auf 0 begrenzen
             fortschritt = Math.max(0, fortschritt);
 
             Streckenabschnitt abschnitt = strecke.getAbschnitt(abschnittId);
             if (abschnitt == null) continue;
 
-            // Interpolierte Position berechnen
             double autoX = abschnitt.getStartX() + fortschritt * (abschnitt.getEndeX() - abschnitt.getStartX());
             double autoY = abschnitt.getStartY() + fortschritt * (abschnitt.getEndeY() - abschnitt.getStartY());
 
-            // Auf Canvas-Koordinaten umrechnen
+
             double x = PADDING + autoX * (breite - 2 * PADDING);
             double y = PADDING + autoY * (hoehe - 2 * PADDING);
 
-            // Auto zeichnen
+
             zeichneAuto(auto, x, y);
         }
     }
@@ -298,22 +285,20 @@ public class StreckenView extends Pane {
     private void zeichneAuto(Auto auto, double x, double y) {
         Color teamFarbe = auto.getTeam().getFarbe();
 
-        // Kreis fuer das Auto
         gc.setFill(teamFarbe);
         gc.fillOval(x - AUTO_RADIUS, y - AUTO_RADIUS, AUTO_RADIUS * 2, AUTO_RADIUS * 2);
 
-        // Rand
         gc.setStroke(Color.WHITE);
         gc.setLineWidth(2);
         gc.strokeOval(x - AUTO_RADIUS, y - AUTO_RADIUS, AUTO_RADIUS * 2, AUTO_RADIUS * 2);
 
-        // Fahrerkuerzel
+
         gc.setFill(Color.WHITE);
         gc.setFont(Font.font("Arial", FontWeight.BOLD, 8));
         String kuerzel = auto.getFahrer().getKuerzel();
         gc.fillText(kuerzel, x - 8, y + 3);
 
-        // Status-Indikator (falls in Box oder wartend)
+
         if (auto.getStatus() == AutoStatus.IN_BOX ||
                 auto.getStatus() == AutoStatus.FAEHRT_IN_BOX ||
                 auto.getStatus() == AutoStatus.VERLAESST_BOX) {

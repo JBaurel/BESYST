@@ -85,14 +85,12 @@ class BoxenZugriffTest {
 
         CountDownLatch fertigLatch = new CountDownLatch(2);
 
-        // Auto-Thread: Faehrt in die Box und wartet auf Service
+
         Thread autoThread = new Thread(() -> {
             try {
                 ereignisse.add("Auto faehrt in Box");
 
-                // Diese Methode:
-                // 1. Signalisiert der Crew dass Auto da ist (autoWartet.signal())
-                // 2. Wartet auf Service-Abschluss (serviceAbgeschlossen.await())
+
                 boxenZugriff.pitstopDurchfuehren(testAuto, ReifenTyp.HARD);
 
                 ereignisse.add("Auto faehrt weiter");
@@ -105,21 +103,21 @@ class BoxenZugriffTest {
             }
         }, "AutoThread");
 
-        // Crew-Thread: Wartet auf Auto, fuehrt Service durch
+
         Thread crewThread = new Thread(() -> {
             try {
                 ereignisse.add("Crew wartet auf Auto");
 
-                // Blockiert bis ein Auto signalisiert (autoWartet.await())
+
                 Auto angekommenesAuto = boxenZugriff.warteAufAuto();
 
                 ereignisse.add("Crew hat Auto empfangen: " + angekommenesAuto.getFahrer().getKuerzel());
 
-                // Service simulieren
+
                 Thread.sleep(100);
                 ereignisse.add("Crew Service abgeschlossen");
 
-                // Auto signalisieren dass es weiterfahren kann (serviceAbgeschlossen.signal())
+
                 boxenZugriff.serviceAbschliessen();
 
             } catch (InterruptedException e) {
@@ -129,20 +127,20 @@ class BoxenZugriffTest {
             }
         }, "CrewThread");
 
-        // Crew zuerst starten (wartet auf Auto)
-        crewThread.start();
-        Thread.sleep(50);  // Sicherstellen dass Crew wartet
 
-        // Dann Auto starten
+        crewThread.start();
+        Thread.sleep(50);
+
+
         autoThread.start();
 
         boolean fertig = fertigLatch.await(5, TimeUnit.SECONDS);
 
-        // ASSERTIONS
+
         assertTrue(fertig, "Beide Threads sollten fertig werden");
         assertTrue(pitstopErfolgreich.get(), "Der Pitstop sollte erfolgreich sein");
 
-        // Reihenfolge pruefen
+
         int crewEmpfangenIndex = -1;
         for (int i = 0; i < ereignisse.size(); i++) {
             if (ereignisse.get(i).contains("Crew hat Auto empfangen")) {
@@ -182,7 +180,7 @@ class BoxenZugriffTest {
         Auto ergebnis = boxenZugriff.warteAufAutoMitTimeout(200);
         long dauer = System.currentTimeMillis() - startZeit;
 
-        // ASSERTIONS
+
         assertNull(ergebnis,
                 "warteAufAutoMitTimeout() sollte null zurueckgeben wenn kein Auto kommt. " +
                         "Dies zeigt, dass await() mit Timeout funktioniert.");
@@ -210,7 +208,7 @@ class BoxenZugriffTest {
     void testMehrerePitstopsHintereinander() throws InterruptedException {
         final int ANZAHL_PITSTOPS = 3;
 
-        // Mehrere Test-Autos erstellen
+
         List<Auto> testAutos = new ArrayList<>();
         for (int i = 0; i < ANZAHL_PITSTOPS; i++) {
             Fahrer f1 = new Fahrer("Fahrer " + i + "a", "F" + i + "A", 80);
@@ -222,14 +220,14 @@ class BoxenZugriffTest {
         AtomicBoolean fehlerAufgetreten = new AtomicBoolean(false);
         List<String> bearbeitet = Collections.synchronizedList(new ArrayList<>());
 
-        // Crew-Thread der mehrere Autos bedient
+
         Thread crewThread = new Thread(() -> {
             try {
                 for (int i = 0; i < ANZAHL_PITSTOPS; i++) {
                     Auto auto = boxenZugriff.warteAufAuto();
                     if (auto != null) {
                         bearbeitet.add(auto.getFahrer().getKuerzel());
-                        Thread.sleep(50);  // Service simulieren
+                        Thread.sleep(50);
                         boxenZugriff.serviceAbschliessen();
                     }
                 }
@@ -243,19 +241,19 @@ class BoxenZugriffTest {
         crewThread.start();
         Thread.sleep(50);
 
-        // Autos nacheinander in die Box schicken
+
         for (Auto auto : testAutos) {
             try {
                 boxenZugriff.pitstopDurchfuehren(auto, ReifenTyp.MEDIUM);
             } catch (Exception e) {
                 fehlerAufgetreten.set(true);
             }
-            Thread.sleep(20);  // Kleine Pause zwischen Pitstops
+            Thread.sleep(20);
         }
 
         crewThread.join(5000);
 
-        // ASSERTIONS
+
         assertFalse(fehlerAufgetreten.get(),
                 "Kein Fehler sollte auftreten bei mehreren Pitstops");
         assertEquals(ANZAHL_PITSTOPS, bearbeitet.size(),

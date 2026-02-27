@@ -24,10 +24,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class SchikaneZugriff {
 
-    /** Standardkapazitaet fuer Schikanen. */
     public static final int SCHIKANE_KAPAZITAET = 2;
 
-    /** Timeout fuer Einfahrversuche in Millisekunden. */
+
     public static final long TIMEOUT_MS = 5000;
 
     private final Streckenabschnitt abschnitt;

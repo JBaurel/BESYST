@@ -47,7 +47,7 @@ class PitstopLaneControllerTest {
     void setUp() {
         controller = new PitstopLaneController();
 
-        // Test-Autos erstellen
+
         testAutos = new ArrayList<>();
         for (int i = 0; i < 6; i++) {
             Fahrer f1 = new Fahrer("Fahrer " + i + "a", "F" + i + "A", 80);
@@ -88,14 +88,14 @@ class PitstopLaneControllerTest {
                 try {
                     startLatch.await();
 
-                    // Einfahrt anfordern
+
                     controller.einfahrtAnfordern(auto);
 
-                    // Zaehler aktualisieren
+
                     int aktuell = gleichzeitigInEinfahrt.incrementAndGet();
                     maxGleichzeitig.updateAndGet(max -> Math.max(max, aktuell));
 
-                    // Einfahrt simulieren
+
                     Thread.sleep(100);
 
                     gleichzeitigInEinfahrt.decrementAndGet();
@@ -114,7 +114,7 @@ class PitstopLaneControllerTest {
         startLatch.countDown();
         boolean fertig = fertigLatch.await(5, TimeUnit.SECONDS);
 
-        // ASSERTIONS
+
         assertTrue(fertig, "Alle Threads sollten fertig werden");
         assertEquals(3, maxGleichzeitig.get(),
                 "Die Einfahrt-Semaphore hat Kapazitaet 3. " +
@@ -146,7 +146,7 @@ class PitstopLaneControllerTest {
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch fertigLatch = new CountDownLatch(ANZAHL_AUTOS);
 
-        // Autos sind bereits in der Boxengasse (Einfahrt abgeschlossen)
+
         for (int i = 0; i < ANZAHL_AUTOS; i++) {
             controller.einfahrtAnfordern(testAutos.get(i));
             controller.einfahrtAbschliessen(testAutos.get(i));
@@ -159,14 +159,14 @@ class PitstopLaneControllerTest {
                 try {
                     startLatch.await();
 
-                    // Ausfahrt anfordern
+
                     controller.ausfahrtAnfordern(auto);
 
-                    // Zaehler aktualisieren
+
                     int aktuell = gleichzeitigInAusfahrt.incrementAndGet();
                     maxGleichzeitig.updateAndGet(max -> Math.max(max, aktuell));
 
-                    // Ausfahrt simulieren
+
                     Thread.sleep(100);
 
                     gleichzeitigInAusfahrt.decrementAndGet();
@@ -185,7 +185,7 @@ class PitstopLaneControllerTest {
         startLatch.countDown();
         boolean fertig = fertigLatch.await(5, TimeUnit.SECONDS);
 
-        // ASSERTIONS
+
         assertTrue(fertig, "Alle Threads sollten fertig werden");
         assertEquals(3, maxGleichzeitig.get(),
                 "Die Ausfahrt-Semaphore hat Kapazitaet 3. " +
@@ -223,17 +223,17 @@ class PitstopLaneControllerTest {
                 try {
                     startLatch.await();
 
-                    // Phase 1: Einfahrt
+
                     controller.einfahrtAnfordern(auto);
-                    Thread.sleep(30);  // Einfahrt simulieren
+                    Thread.sleep(30);
                     controller.einfahrtAbschliessen(auto);
 
-                    // Phase 2: Durchfahrt (kein Semaphore-Schutz)
+
                     controller.boxengassenDurchfahrt(50);
 
-                    // Phase 3: Ausfahrt
+
                     controller.ausfahrtAnfordern(auto);
-                    Thread.sleep(30);  // Ausfahrt simulieren
+                    Thread.sleep(30);
                     controller.ausfahrtAbschliessen(auto);
 
                     erfolgreichDurchgefahren.incrementAndGet();
@@ -251,7 +251,7 @@ class PitstopLaneControllerTest {
         startLatch.countDown();
         boolean fertig = fertigLatch.await(10, TimeUnit.SECONDS);
 
-        // ASSERTIONS
+
         assertTrue(fertig,
                 "Alle Threads sollten innerhalb von 10 Sekunden fertig werden. " +
                         "Wenn nicht, koennte ein Deadlock vorliegen.");

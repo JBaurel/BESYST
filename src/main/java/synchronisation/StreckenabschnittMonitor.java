@@ -79,18 +79,16 @@ public class StreckenabschnittMonitor {
         }
 
         synchronized (lock) {
-            // In Warteschlange einreihen
             warteschlange.add(auto);
             RennLogger.logSync("WARTESCHLANGE_BEITRITT",
                     abschnitt.getName() + " (Position: " + warteschlange.size() + ")");
 
-            // Warten bis Platz frei UND Auto an der Reihe ist
             while (aktuelleAnzahl >= kapazitaet || warteschlange.peek() != auto) {
                 RennLogger.logSync("WARTEN", abschnitt.getName());
                 lock.wait();
             }
 
-            // Aus Warteschlange entfernen und einfahren
+
             warteschlange.poll();
             aktuelleAnzahl++;
 

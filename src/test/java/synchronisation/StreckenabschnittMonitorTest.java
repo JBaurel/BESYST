@@ -50,25 +50,25 @@ class StreckenabschnittMonitorTest {
      */
     @BeforeEach
     void setUp() {
-        // Enge Kurve mit Kapazitaet 1 erstellen
+
         engeKurve = new Streckenabschnitt(
                 2, "Yokohama-S", StreckenabschnittTyp.ENGE_KURVE,
-                15, 0.25, 0.20, 0.35, 1  // Kapazitaet = 1
+                15, 0.25, 0.20, 0.35, 1
         );
 
         monitor = new StreckenabschnittMonitor(engeKurve);
 
-        // Test-Team und Fahrer erstellen
+
         fahrer1 = new Fahrer("Test Fahrer 1", "TF1", 90);
         fahrer2 = new Fahrer("Test Fahrer 2", "TF2", 85);
         fahrer3 = new Fahrer("Test Fahrer 3", "TF3", 80);
         testTeam = new Team("Test Team", javafx.scene.paint.Color.RED, fahrer1, fahrer2);
 
-        // Test-Autos erstellen
+
         auto1 = new Auto(1, testTeam, fahrer1);
         auto2 = new Auto(2, testTeam, fahrer2);
 
-        // Drittes Auto benoetigt ein zweites Team
+
         Fahrer fahrer3a = new Fahrer("Test Fahrer 3", "TF3", 80);
         Fahrer fahrer3b = new Fahrer("Test Fahrer 3b", "T3B", 75);
         Team testTeam2 = new Team("Test Team 2", javafx.scene.paint.Color.BLUE, fahrer3a, fahrer3b);
@@ -92,27 +92,27 @@ class StreckenabschnittMonitorTest {
     @Test
     @DisplayName("Test 1: Nur ein Auto gleichzeitig in der Kurve (Mutual Exclusion)")
     void testNurEinAutoGleichzeitigInKurve() throws InterruptedException {
-        // Zaehler fuer die maximale Anzahl gleichzeitiger Autos
+
         AtomicInteger gleichzeitigInKurve = new AtomicInteger(0);
         AtomicInteger maxGleichzeitig = new AtomicInteger(0);
 
-        // Latch damit beide Threads gleichzeitig starten
+
         CountDownLatch startLatch = new CountDownLatch(1);
-        // Latch um auf beide Threads zu warten
+
         CountDownLatch fertigLatch = new CountDownLatch(2);
 
-        // Thread 1: Auto 1 faehrt in die Kurve
+
         Thread thread1 = new Thread(() -> {
             try {
-                startLatch.await();  // Warten auf Startsignal
+                startLatch.await();
 
                 monitor.einfahren(auto1);
 
-                // Zaehler erhoehen und Maximum aktualisieren
+
                 int aktuell = gleichzeitigInKurve.incrementAndGet();
                 maxGleichzeitig.updateAndGet(max -> Math.max(max, aktuell));
 
-                // Kurze Zeit in der Kurve bleiben
+
                 Thread.sleep(100);
 
                 gleichzeitigInKurve.decrementAndGet();
@@ -125,18 +125,18 @@ class StreckenabschnittMonitorTest {
             }
         }, "AutoThread-1");
 
-        // Thread 2: Auto 2 versucht auch einzufahren
+
         Thread thread2 = new Thread(() -> {
             try {
-                startLatch.await();  // Warten auf Startsignal
+                startLatch.await();
 
                 monitor.einfahren(auto2);
 
-                // Zaehler erhoehen und Maximum aktualisieren
+
                 int aktuell = gleichzeitigInKurve.incrementAndGet();
                 maxGleichzeitig.updateAndGet(max -> Math.max(max, aktuell));
 
-                // Kurze Zeit in der Kurve bleiben
+
                 Thread.sleep(100);
 
                 gleichzeitigInKurve.decrementAndGet();
@@ -149,17 +149,17 @@ class StreckenabschnittMonitorTest {
             }
         }, "AutoThread-2");
 
-        // Threads starten
+
         thread1.start();
         thread2.start();
 
-        // Beide Threads gleichzeitig loslassen
+
         startLatch.countDown();
 
-        // Auf beide Threads warten (max 5 Sekunden)
+
         boolean fertig = fertigLatch.await(5, TimeUnit.SECONDS);
 
-        // ASSERTIONS
+
         assertTrue(fertig, "Beide Threads sollten innerhalb von 5 Sekunden fertig sein");
         assertEquals(1, maxGleichzeitig.get(),
                 "Es darf nie mehr als 1 Auto gleichzeitig in der Kurve sein! " +
@@ -183,20 +183,20 @@ class StreckenabschnittMonitorTest {
     @Test
     @DisplayName("Test 2: Wartender Thread wird durch notifyAll() aufgeweckt")
     void testWaitUndNotifyAll() throws InterruptedException {
-        // Liste zum Protokollieren der Reihenfolge
+
         List<String> ereignisse = Collections.synchronizedList(new ArrayList<>());
 
         CountDownLatch auto1Drin = new CountDownLatch(1);
         CountDownLatch fertigLatch = new CountDownLatch(2);
 
-        // Thread 1: Auto 1 faehrt ein und bleibt eine Weile
+
         Thread thread1 = new Thread(() -> {
             try {
                 monitor.einfahren(auto1);
                 ereignisse.add("Auto1 eingefahren");
-                auto1Drin.countDown();  // Signal dass Auto 1 drin ist
+                auto1Drin.countDown();
 
-                // Warten damit Auto 2 Zeit hat zu versuchen einzufahren
+
                 Thread.sleep(200);
 
                 ereignisse.add("Auto1 faehrt aus");
@@ -210,15 +210,15 @@ class StreckenabschnittMonitorTest {
             }
         }, "AutoThread-1");
 
-        // Thread 2: Auto 2 wartet bis Auto 1 drin ist, dann versucht es einzufahren
+
         Thread thread2 = new Thread(() -> {
             try {
-                // Warten bis Auto 1 sicher drin ist
+
                 auto1Drin.await();
-                Thread.sleep(50);  // Kleine Verzoegerung
+                Thread.sleep(50);
 
                 ereignisse.add("Auto2 versucht einzufahren");
-                monitor.einfahren(auto2);  // Hier sollte wait() aufgerufen werden
+                monitor.einfahren(auto2);
                 ereignisse.add("Auto2 eingefahren");
 
                 monitor.ausfahren(auto2);
@@ -236,10 +236,10 @@ class StreckenabschnittMonitorTest {
 
         boolean fertig = fertigLatch.await(5, TimeUnit.SECONDS);
 
-        // ASSERTIONS
+
         assertTrue(fertig, "Beide Threads sollten fertig werden");
 
-        // Die Reihenfolge pruefen: Auto2 darf erst einfahren NACHDEM Auto1 ausgefahren ist
+
         int auto1AusgefahrenIndex = ereignisse.indexOf("Auto1 ausgefahren");
         int auto2EingefahrenIndex = ereignisse.indexOf("Auto2 eingefahren");
 
@@ -276,7 +276,7 @@ class StreckenabschnittMonitorTest {
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch fertigLatch = new CountDownLatch(ANZAHL_THREADS);
 
-        // Mehrere Test-Autos erstellen
+
         List<Auto> testAutos = new ArrayList<>();
         for (int i = 0; i < ANZAHL_THREADS; i++) {
             Fahrer f1 = new Fahrer("Fahrer " + i + "a", "F" + i + "A", 80);
@@ -285,7 +285,7 @@ class StreckenabschnittMonitorTest {
             testAutos.add(new Auto(10 + i, team, f1));
         }
 
-        // Threads erstellen und starten
+
         for (int i = 0; i < ANZAHL_THREADS; i++) {
             final Auto auto = testAutos.get(i);
 
@@ -296,11 +296,11 @@ class StreckenabschnittMonitorTest {
                     for (int d = 0; d < DURCHGAENGE_PRO_THREAD; d++) {
                         monitor.einfahren(auto);
 
-                        // Zaehler aktualisieren
+
                         int aktuell = gleichzeitigInKurve.incrementAndGet();
                         maxGleichzeitig.updateAndGet(max -> Math.max(max, aktuell));
 
-                        // Kurze Zeit in der Kurve
+
                         Thread.sleep(10 + (int)(Math.random() * 20));
 
                         gleichzeitigInKurve.decrementAndGet();
@@ -318,13 +318,13 @@ class StreckenabschnittMonitorTest {
             thread.start();
         }
 
-        // Alle Threads gleichzeitig starten
+
         startLatch.countDown();
 
-        // Auf alle Threads warten
+
         boolean fertig = fertigLatch.await(30, TimeUnit.SECONDS);
 
-        // ASSERTIONS
+
         assertTrue(fertig,
                 "Alle Threads sollten innerhalb von 30 Sekunden fertig werden. " +
                         "Wenn nicht, liegt moeglicherweise ein Deadlock oder Starvation vor.");

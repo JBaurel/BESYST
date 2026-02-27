@@ -9,7 +9,7 @@ public class Main {
         RennLogger.info("============================================");
         RennLogger.info("Starte Anwendung...");
 
-        // JavaFX HauptFenster starten
+
         Application.launch(HauptFenster.class, args);
     }
 }

@@ -37,7 +37,7 @@ public class AutoThread extends Thread {
     private final Rennstrecke strecke;
     private final RennDaten rennDaten;
 
-    // Synchronisationskomponenten
+
     private final Map<Integer, StreckenabschnittMonitor> kurvenMonitore;
     private final Map<Integer, SchikaneZugriff> schikaneZugriffe;
     private final PitstopLaneController pitstopController;
@@ -45,7 +45,7 @@ public class AutoThread extends Thread {
     private final UeberholzonenManager ueberholManager;
     private final StartFreigabe startFreigabe;
 
-    // Steuerungsflags
+
     private volatile boolean running;
     private volatile boolean rennBeendet;
     private double simulationsGeschwindigkeit;
@@ -101,12 +101,12 @@ public class AutoThread extends Thread {
                 "AutoThread gestartet fuer " + auto);
 
         try {
-            // Phase 1: Auf Startfreigabe warten
+
             warteAufStart();
 
             if (!running || rennBeendet) return;
 
-            // Phase 2: Rennen fahren
+
             fahreRennen();
 
         } catch (InterruptedException e) {
@@ -150,16 +150,16 @@ public class AutoThread extends Thread {
         int gesamtRunden = strecke.getAnzahlRunden();
 
         while (running && !rennBeendet && auto.getAktuelleRunde() <= gesamtRunden) {
-            // Aktuellen Abschnitt durchfahren
+
             durchfahreAktuellenAbschnitt();
 
             if (!running || rennBeendet) break;
 
-            // Zum naechsten Abschnitt wechseln
+
             wechsleZumNaechstenAbschnitt();
         }
 
-        // Rennen beendet
+
         if (running && !rennBeendet) {
             auto.setzeImZiel();
             RennLogger.logThread(RennLogger.LogLevel.INFO,
@@ -181,7 +181,7 @@ public class AutoThread extends Thread {
         RennLogger.logThread(RennLogger.LogLevel.DEBUG,
                 auto.getFahrer().getKuerzel() + " betritt Abschnitt " + abschnitt.getName());
 
-        // Je nach Abschnittstyp unterschiedliche Behandlung
+
         switch (abschnitt.getTyp()) {
             case ENGE_KURVE:
                 durchfahreEngeKurve(abschnitt);
@@ -216,7 +216,7 @@ public class AutoThread extends Thread {
             RennLogger.logThread(RennLogger.LogLevel.DEBUG,
                     auto.getFahrer().getKuerzel() + " wartet auf Kurve " + abschnitt.getName());
 
-            // In kritischen Bereich einfahren (blockiert bis Platz frei)
+
             monitor.einfahren(auto);
 
             auto.setStatus(AutoStatus.IN_KRITISCHEM_BEREICH);
@@ -224,15 +224,15 @@ public class AutoThread extends Thread {
                     auto.getFahrer().getKuerzel() + " in Kurve " + abschnitt.getName());
 
             try {
-                // Kurve durchfahren
+
                 simuliereDurchfahrt(abschnitt);
             } finally {
-                // Kurve verlassen
+
                 monitor.ausfahren(auto);
                 auto.setStatus(AutoStatus.FAEHRT);
             }
         } else {
-            // Fallback wenn kein Monitor vorhanden
+
             simuliereDurchfahrt(abschnitt);
         }
     }
@@ -249,7 +249,7 @@ public class AutoThread extends Thread {
         if (zugriff != null) {
             auto.setStatus(AutoStatus.WARTET_AUF_ABSCHNITT);
 
-            // Semaphore-Permit anfordern
+
             zugriff.einfahren(auto);
 
             auto.setStatus(AutoStatus.IN_KRITISCHEM_BEREICH);
@@ -274,7 +274,7 @@ public class AutoThread extends Thread {
     private void durchfahreGeradeOderDRS(Streckenabschnitt abschnitt) throws InterruptedException {
         auto.setStatus(AutoStatus.IN_UEBERHOLZONE);
 
-        // Pruefen ob Ueberholung moeglich
+
         if (abschnitt.istUeberholzone()) {
             versucheUeberholung(abschnitt);
         }
@@ -302,17 +302,17 @@ public class AutoThread extends Thread {
      * @throws InterruptedException wenn der Thread unterbrochen wird
      */
     private void simuliereDurchfahrt(Streckenabschnitt abschnitt) throws InterruptedException {
-        // Basiszeit berechnen
+
         long basisZeit = Konfiguration.BASIS_ABSCHNITT_ZEIT_MS;
 
-        // Geschwindigkeitsfaktor des Autos anwenden
+
         double geschwindigkeit = auto.berechneGeschwindigkeit();
         long angepassteZeit = (long) (basisZeit / geschwindigkeit);
 
-        // Simulationsgeschwindigkeit anwenden
+
         long skalierteZeit = Konfiguration.skaliereZeit(angepassteZeit, simulationsGeschwindigkeit);
 
-        // Durchfahrt in kleinen Schritten simulieren fuer fluessige Animation
+
         int schritte = 10;
         long zeitProSchritt = skalierteZeit / schritte;
         double fortschrittProSchritt = 1.0 / schritte;
@@ -325,7 +325,6 @@ public class AutoThread extends Thread {
             auto.aktualisierePosition(abschnitt);
         }
 
-        // Reifen abnutzen (einmal pro Abschnitt)
         auto.getAktuelleReifen().abnutzen();
     }
 
@@ -335,7 +334,7 @@ public class AutoThread extends Thread {
      * @param abschnitt Der aktuelle DRS-Zonen-Abschnitt
      */
     private void versucheUeberholung(Streckenabschnitt abschnitt) {
-        // Finde das Auto direkt vor diesem
+
         List<Auto> reihenfolge = rennDaten.getRennreihenfolge();
         int meinePosition = -1;
 
@@ -346,23 +345,23 @@ public class AutoThread extends Thread {
             }
         }
 
-        // Wenn nicht an erster Stelle, Ueberholung versuchen
+
         if (meinePosition > 0) {
             Auto vordermann = reihenfolge.get(meinePosition - 1);
 
-            // Pruefen ob Vordermann im gleichen Abschnitt und nah genug
+
             if (vordermann.getAktuellerAbschnittId() == auto.getAktuellerAbschnittId()) {
-                // Abstand berechnen (vereinfacht ueber Fortschritt)
+
                 double abstand = vordermann.getFortschrittImAbschnitt() - auto.getFortschrittImAbschnitt();
                 long abstandMs = (long) (abstand * Konfiguration.BASIS_ABSCHNITT_ZEIT_MS);
 
                 if (abstandMs < Konfiguration.MAX_ABSTAND_FUER_UEBERHOLUNG_MS && abstandMs > 0) {
-                    // Ueberholversuch durchfuehren
+
                     boolean erfolg = ueberholManager.versucheUeberholung(
                             auto, vordermann, abschnitt, abstandMs);
 
                     if (erfolg) {
-                        // Fortschritt kuenstlich erhoehen
+
                         double neuerFortschritt = vordermann.getFortschrittImAbschnitt()
                                 + Konfiguration.UEBERHOLUNG_FORTSCHRITT_BONUS;
                         auto.setFortschrittImAbschnitt(Math.min(0.99, neuerFortschritt));
@@ -385,7 +384,7 @@ public class AutoThread extends Thread {
     private void wechsleZumNaechstenAbschnitt() throws InterruptedException {
         int aktuelleId = auto.getAktuellerAbschnittId();
 
-        // Pruefen ob Pitstop angefordert und wir am richtigen Punkt sind
+
         if (auto.istPitstopAngefordert() &&
                 aktuelleId == Konfiguration.PITSTOP_EINFAHRT_NACH_ABSCHNITT) {
 
@@ -393,18 +392,18 @@ public class AutoThread extends Thread {
             return;
         }
 
-        // Normaler Abschnittswechsel
+
         int naechsteId;
 
         if (aktuelleId == Konfiguration.ANZAHL_HAUPTSTRECKEN_ABSCHNITTE - 1) {
-            // Ende der Runde erreicht -> zurueck zum Start
+
             naechsteId = 0;
             beendeRunde();
         } else if (aktuelleId == Konfiguration.PITSTOP_AUSFAHRT_ID) {
-            // Nach Pitstop-Ausfahrt -> wieder auf Hauptstrecke
+
             naechsteId = Konfiguration.PITSTOP_AUSFAHRT_VOR_ABSCHNITT;
         } else {
-            // Normaler naechster Abschnitt
+
             naechsteId = aktuelleId + 1;
         }
 
@@ -429,30 +428,29 @@ public class AutoThread extends Thread {
             neuerTyp = ReifenTyp.MEDIUM; // Fallback
         }
 
-        // In Boxengasse einfahren
+
         auto.setStatus(AutoStatus.FAEHRT_IN_BOX);
         auto.setAktuellerAbschnittId(Konfiguration.PITSTOP_EINFAHRT_ID);
         pitstopController.einfahrtAnfordern(auto);
 
         try {
-            // Einfahrt durchfahren
+
             simuliereDurchfahrt(strecke.getAbschnitt(Konfiguration.PITSTOP_EINFAHRT_ID));
             pitstopController.einfahrtAbschliessen(auto);
 
-            // In die Box fahren und Reifenwechsel durchfuehren
+
             auto.setAktuellerAbschnittId(Konfiguration.BOXENGASSE_ID);
             auto.setStatus(AutoStatus.IN_BOX);
 
-            // Reifenwechsel ueber BoxenZugriff (wartet auf Boxencrew)
             boxenZugriff.pitstopDurchfuehren(auto, neuerTyp);
 
-            // Reifen wurden gewechselt (durch BoxencrewThread)
+
             auto.wechsleReifen(neuerTyp);
 
             RennLogger.logThread(RennLogger.LogLevel.INFO,
                     auto.getFahrer().getKuerzel() + " Reifenwechsel: " + neuerTyp);
 
-            // Ausfahrt
+
             auto.setStatus(AutoStatus.VERLAESST_BOX);
             auto.setAktuellerAbschnittId(Konfiguration.PITSTOP_AUSFAHRT_ID);
             pitstopController.ausfahrtAnfordern(auto);
@@ -464,7 +462,7 @@ public class AutoThread extends Thread {
             auto.setStatus(AutoStatus.FAEHRT);
         }
 
-        // Zurueck auf die Hauptstrecke
+
         auto.setAktuellerAbschnittId(Konfiguration.PITSTOP_AUSFAHRT_VOR_ABSCHNITT);
         auto.setFortschrittImAbschnitt(0.0);
     }
@@ -476,7 +474,7 @@ public class AutoThread extends Thread {
         int abgeschlosseneRunde = auto.getAktuelleRunde();
         long aktuelleZeit = System.currentTimeMillis();
 
-        // Rundenzeit protokollieren
+
         Rundenzeit rundenzeit = new Rundenzeit(
                 auto.getStartnummer(),
                 abgeschlosseneRunde,
@@ -491,7 +489,7 @@ public class AutoThread extends Thread {
                 auto.getFahrer().getKuerzel() + " beendet Runde " + abgeschlosseneRunde +
                         " - Zeit: " + rundenzeit.getFormattierteZeit());
 
-        // Pruefen ob Rennen fuer dieses Auto beendet
+
         if (abgeschlosseneRunde >= strecke.getAnzahlRunden()) {
             auto.setzeImZiel();
             RennLogger.logThread(RennLogger.LogLevel.INFO,
@@ -504,7 +502,6 @@ public class AutoThread extends Thread {
         }
     }
 
-    // ========== Steuerungsmethoden ==========
 
     /**
      * Stoppt den Thread sicher.

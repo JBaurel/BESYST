@@ -115,8 +115,6 @@ public class RennController {
         List<Auto> autos = new ArrayList<>(rennDaten.getAutos());
         Collections.shuffle(autos);
 
-        // Grid-Formation: 2 Autos pro Reihe, 10 Reihen
-        //  Pole Position, negative Werte fuer hintere Plaetze
         double startFortschritt = 0.0;
         double abstandProReihe = 0.03;
         double abstandInReihe = 0.01;
@@ -132,7 +130,7 @@ public class RennController {
             }
 
             auto.setFortschrittImAbschnitt(Math.max(-0.5, fortschritt));
-            auto.setAktuellerAbschnittId(0);  // Start/Ziel-Abschnitt
+            auto.setAktuellerAbschnittId(0);
 
             RennLogger.debug("Startposition " + position + ": " +
                     auto.getFahrer().getKuerzel() + " (Fortschritt: " +
@@ -165,7 +163,7 @@ public class RennController {
             }
         }
 
-        // BoxenZugriffe
+
         boxenZugriffe = new HashMap<>();
         for (Box box : rennDaten.getBoxen()) {
             boxenZugriffe.put(box.getTeam(), new BoxenZugriff(box));
@@ -219,7 +217,6 @@ public class RennController {
 
         rennleiterThread = new RennleiterThread(rennDaten, startFreigabe, autoThreads);
 
-        // Rennleiter-Listener fuer GUI-Callbacks setzen
         rennleiterThread.setRennleiterListener(new RennleiterThread.RennleiterListener() {
             @Override
             public void onStartSequenzBeginn() {
@@ -282,26 +279,25 @@ public class RennController {
 
         rennLaeuft = true;
 
-        // Threads in der richtigen Reihenfolge starten
-        // Boxencrews
+
         for (BoxencrewThread crew : boxencrewThreads) {
             crew.start();
         }
         RennLogger.debug("BoxencrewThreads gestartet");
 
-        //  Rennstaelle
+
         for (RennstallThread stall : rennstallThreads) {
             stall.start();
         }
         RennLogger.debug("RennstallThreads gestartet");
 
-        //  AutoThreads
+
         for (AutoThread auto : autoThreads) {
             auto.start();
         }
         RennLogger.debug("AutoThreads gestartet");
 
-        // Rennleiter
+
         rennleiterThread.start();
         RennLogger.debug("RennleiterThread gestartet");
 

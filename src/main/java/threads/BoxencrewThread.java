@@ -82,12 +82,12 @@ public class BoxencrewThread extends Thread {
 
         try {
             while (running) {
-                // Mit Timeout warten, um regelmaessig running zu pruefen
+
                 Auto auto = boxenZugriff.warteAufAutoMitTimeout(
                         Konfiguration.STRATEGIE_CHECK_INTERVALL_MS);
 
                 if (auto != null && running) {
-                    // Auto ist angekommen - Reifenwechsel durchfuehren
+
                     fuehreReifenwechselDurch(auto);
                 }
             }
@@ -96,7 +96,7 @@ public class BoxencrewThread extends Thread {
                     "Boxencrew " + team.getName() + " unterbrochen");
             Thread.currentThread().interrupt();
         } catch (Exception e) {
-            // Fehler loggen und ignorieren
+
             RennLogger.error("Fehler in Boxencrew " + team.getName(), e);
         } finally {
             RennLogger.logThread(RennLogger.LogLevel.INFO,
@@ -124,23 +124,22 @@ public class BoxencrewThread extends Thread {
         long startZeit = System.currentTimeMillis();
 
         try {
-            // Gewuenschten Reifentyp ermitteln
+
             ReifenTyp neuerTyp = boxenZugriff.getGewaehlterReifenTyp();
             if (neuerTyp == null) {
                 neuerTyp = ReifenTyp.MEDIUM;
             }
 
-            // Reifenwechsel simulieren (zufaellige Dauer zwischen MIN und MAX)
             long pitstopDauer = Konfiguration.berechneZufaelligePitstopDauer();
             long skalierteZeit = Konfiguration.skaliereZeit(pitstopDauer, simulationsGeschwindigkeit);
 
             RennLogger.logThread(RennLogger.LogLevel.DEBUG,
                     "Pitstop-Dauer: " + pitstopDauer + "ms (skaliert: " + skalierteZeit + "ms)");
 
-            // Arbeit simulieren
+
             Thread.sleep(skalierteZeit);
 
-            // Statistiken aktualisieren
+
             durchgefuehrtePitstops++;
             gesamtServiceZeit += pitstopDauer;
 
@@ -160,8 +159,6 @@ public class BoxencrewThread extends Thread {
             boxenZugriff.serviceAbschliessen();
         }
     }
-
-    // ========== Steuerungsmethoden ==========
 
     /**
      * Stoppt den Thread sicher.
@@ -191,7 +188,6 @@ public class BoxencrewThread extends Thread {
         }
     }
 
-    // ========== Getter ==========
 
     /**
      * Gibt das Team dieser Boxencrew zurueck.

@@ -35,12 +35,11 @@ public class RennleiterThread extends Thread {
     private final StartFreigabe startFreigabe;
     private final List<AutoThread> autoThreads;
 
-    // Steuerungsflags
+
     private volatile boolean running;
     private volatile boolean rennGestartet;
     private volatile boolean rennBeendet;
 
-    // Callback fuer GUI-Updates
     private RennleiterListener listener;
 
     /**
@@ -132,15 +131,12 @@ public class RennleiterThread extends Thread {
         RennLogger.logThread(RennLogger.LogLevel.INFO, "Rennleiter gestartet");
 
         try {
-            // Phase 1: Startsequenz durchfuehren
             fuehreStartsequenzDurch();
 
             if (!running) return;
-
-            // Phase 2: Rennen ueberwachen
             ueberwacheRennen();
 
-            // Phase 3: Ergebnisse erstellen
+
             if (rennBeendet) {
                 erstelleErgebnisse();
             }
@@ -171,7 +167,6 @@ public class RennleiterThread extends Thread {
 
         rennDaten.setStatus(RennStatus.STARTPHASE);
 
-        // Warte bis genuegend Autos bereit sind
         RennLogger.logThread(RennLogger.LogLevel.INFO,
                 "Warte auf Autos... (" + startFreigabe.getBereiteAutos() + "/" +
                         startFreigabe.getAnzahlAutos() + ")");
@@ -186,7 +181,7 @@ public class RennleiterThread extends Thread {
 
         RennLogger.logThread(RennLogger.LogLevel.INFO, "Alle Autos bereit!");
 
-        // Ampelsequenz mit Listener-Callbacks
+
         StartFreigabe.StartSequenzListener ampelListener = new StartFreigabe.StartSequenzListener() {
             @Override
             public void lichtAn(int lichtNummer) {
@@ -215,10 +210,7 @@ public class RennleiterThread extends Thread {
 
         startFreigabe.setStartSequenzListener(ampelListener);
 
-        // Startsequenz durchfuehren (blockiert bis Freigabe)
         startFreigabe.starteStartsequenz();
-
-        // Rennen laeuft jetzt
         rennGestartet = true;
         rennDaten.setStatus(RennStatus.LAEUFT);
         rennDaten.setRennStartzeit(System.currentTimeMillis());
@@ -241,19 +233,19 @@ public class RennleiterThread extends Thread {
         Auto fuehrenderImZiel = null;
 
         while (running && !rennBeendet) {
-            // Pause zwischen Checks
+
             Thread.sleep(Konfiguration.skaliereZeit(
                     Konfiguration.GUI_UPDATE_INTERVALL_MS,
                     rennDaten.getSimulationsGeschwindigkeit()));
 
-            // Pruefen ob ein Auto neu ins Ziel gekommen ist
+
             List<Auto> reihenfolge = rennDaten.getRennreihenfolge();
 
             for (Auto auto : reihenfolge) {
                 if (auto.istImZiel() && auto.getStatus() == AutoStatus.IM_ZIEL) {
-                    // Dieses Auto ist gerade ins Ziel gekommen
+
                     if (fuehrenderImZiel == null) {
-                        // Erster im Ziel - Rennen wird bald enden
+
                         fuehrenderImZiel = auto;
                         zielPosition = 1;
 
@@ -264,13 +256,13 @@ public class RennleiterThread extends Thread {
                             listener.onAutoImZiel(auto, zielPosition);
                         }
 
-                        // Rennen fuer alle beenden
+
                         beendeRennenFuerAlle();
                     }
                 }
             }
 
-            // Pruefen ob alle Autos im Ziel oder gestoppt sind
+
             boolean alleBeendet = true;
             for (AutoThread autoThread : autoThreads) {
                 if (autoThread.isRunning() && !autoThread.getAuto().istImZiel()) {
@@ -312,7 +304,7 @@ public class RennleiterThread extends Thread {
 
         List<Auto> reihenfolge = rennDaten.getRennreihenfolge();
 
-        // Siegerzeit ermitteln
+
         long siegerZeit = 0;
         if (!reihenfolge.isEmpty()) {
             siegerZeit = reihenfolge.get(0).getGesamtzeit();
@@ -329,7 +321,7 @@ public class RennleiterThread extends Thread {
                     auto.getAktuelleRunde(),
                     auto.getBesteRundenzeit(),
                     auto.getAnzahlPitstops(),
-                    null, // Rundenzeiten werden hier nicht kopiert
+                    null,
                     rueckstand
             );
 
@@ -357,7 +349,6 @@ public class RennleiterThread extends Thread {
         }
     }
 
-    // ========== Steuerungsmethoden ==========
 
     /**
      * Stoppt den Thread und das Rennen sicher.
@@ -395,8 +386,6 @@ public class RennleiterThread extends Thread {
             RennLogger.logThread(RennLogger.LogLevel.INFO, "Rennen FORTGESETZT");
         }
     }
-
-    // ========== Getter ==========
 
     /**
      * Prueft ob das Rennen gestartet wurde.

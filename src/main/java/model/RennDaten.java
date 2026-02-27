@@ -69,7 +69,6 @@ public class RennDaten {
         int startnummer = 1;
         int boxPosition = 0;
 
-        // Red Bull Racing
         Fahrer verstappen = new Fahrer("Max Verstappen", "VER", 98);
         Fahrer perez = new Fahrer("Sergio Perez", "PER", 85);
         Team redBull = new Team("Red Bull Racing", Color.DARKBLUE, verstappen, perez);
@@ -173,13 +172,13 @@ public class RennDaten {
         List<Auto> sortiert = new ArrayList<>(autos);
 
         sortiert.sort((a1, a2) -> {
-            // Erst nach Runde sortieren (mehr Runden = weiter vorne)
+
             int rundenVergleich = Integer.compare(a2.getAktuelleRunde(), a1.getAktuelleRunde());
             if (rundenVergleich != 0) {
                 return rundenVergleich;
             }
 
-            // Bei gleicher Runde nach Abschnitt (hoeherer Abschnitt = weiter vorne)
+
             int abschnittVergleich = Integer.compare(
                     a2.getAktuellerAbschnittId(),
                     a1.getAktuellerAbschnittId()
@@ -188,7 +187,7 @@ public class RennDaten {
                 return abschnittVergleich;
             }
 
-            // Bei gleichem Abschnitt nach Fortschritt
+
             return Double.compare(
                     a2.getFortschrittImAbschnitt(),
                     a1.getFortschrittImAbschnitt()
@@ -310,7 +309,7 @@ public class RennDaten {
         return true;
     }
 
-    // Getter und Setter
+
 
     public Rennstrecke getStrecke() {
         return strecke;

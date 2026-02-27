@@ -35,20 +35,17 @@ import java.util.TimerTask;
  */
 public class HauptFenster extends Application {
 
-    // Fenstergroesse
     private static final int FENSTER_BREITE = 1400;
     private static final int FENSTER_HOEHE = 700;
 
-    // Controller
     private RennController controller;
 
-    // View-Komponenten
     private StreckenView streckenView;
     private RennstandTabelle rennstandTabelle;
     private LogPanel logPanel;
     private StartAmpelView startAmpelView;
 
-    // Steuerelemente
+
     private Button startButton;
     private Button pauseButton;
     private Button stoppButton;
@@ -58,32 +55,30 @@ public class HauptFenster extends Application {
     private Label rundenLabel;
     private Label statusLabel;
 
-    // Timer fuer GUI-Updates
+
     private Timer updateTimer;
 
     @Override
     public void start(Stage primaryStage) {
-        // Controller erstellen
+
         controller = new RennController();
 
-        // GUI aufbauen
         BorderPane hauptLayout = erstelleHauptLayout();
 
-        // Scene erstellen
+
         Scene scene = new Scene(hauptLayout, FENSTER_BREITE, FENSTER_HOEHE);
 
-        // Stage konfigurieren
+
         primaryStage.setTitle("F1 Rennsimulation - Nürburgring");
         primaryStage.setScene(scene);
         primaryStage.setMinWidth(1200);
         primaryStage.setMinHeight(700);
 
-        // Event-Handler fuer Fenster-Schliessen
         primaryStage.setOnCloseRequest(event -> {
             beenden();
         });
 
-        // Controller-Listener setzen
+
         controller.setEventListener(new RennController.RennEventListener() {
             @Override
             public void onLogNachricht(String nachricht) {
@@ -119,7 +114,7 @@ public class HauptFenster extends Application {
             }
         });
 
-        // Fenster anzeigen
+
         primaryStage.show();
 
         RennLogger.info("GUI gestartet");
@@ -296,26 +291,23 @@ public class HauptFenster extends Application {
     private void starteRennen() {
         RennLogger.info("Starte Rennen...");
 
-        // Einstellungen deaktivieren
         rundenSlider.setDisable(true);
 
-        // Buttons aktualisieren
         aktualisiereButtons(true, false);
 
-        // Controller initialisieren und starten
         controller.initialisieren();
 
-        // Streckenview aktualisieren
+
         streckenView.setRennDaten(controller.getRennDaten());
 
-        // Rennstand initial befuellen
+
         rennstandTabelle.aktualisiereRennstand(controller.getRennDaten().getRennreihenfolge(),
                 controller.getRennDaten());
 
-        // Update-Timer starten
+
         starteUpdateTimer();
 
-        // Rennen starten
+
         controller.starteRennen();
 
         statusLabel.setText("Status: Startsequenz...");
@@ -355,18 +347,17 @@ public class HauptFenster extends Application {
     private void neuesRennen() {
         RennLogger.info("Bereite neues Rennen vor...");
 
-        // Reset
         startAmpelView.reset();
         logPanel.leeren();
 
-        // Einstellungen wieder aktivieren
+
         rundenSlider.setDisable(false);
 
-        // Buttons zuruecksetzen
+
         aktualisiereButtons(false, false);
         neuesRennenButton.setVisible(false);
 
-        // Controller neu erstellen
+
         controller = new RennController();
         controller.setEventListener(new RennController.RennEventListener() {
             @Override
@@ -403,14 +394,14 @@ public class HauptFenster extends Application {
             }
         });
 
-        // Rundenanzahl setzen
+
         controller.setRundenanzahl((int) rundenSlider.getValue());
 
-        // Streckenview aktualisieren
+
         streckenView.setRennDaten(controller.getRennDaten());
         streckenView.zeichneStrecke();
 
-        // Rennstand leeren
+
         rennstandTabelle.aktualisiereRennstand(controller.getRennDaten().getRennreihenfolge(),
                 controller.getRennDaten());
 
@@ -473,10 +464,8 @@ public class HauptFenster extends Application {
             return;
         }
 
-        // Strecke neu zeichnen
         streckenView.zeichneStrecke();
 
-        // Rennstand aktualisieren
         aktualisiereRennstand();
     }
 

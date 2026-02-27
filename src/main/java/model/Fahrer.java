@@ -13,10 +13,8 @@ package model;
  */
 public class Fahrer {
 
-    /** Minimaler Geschicklichkeitswert. */
     public static final int MIN_GESCHICKLICHKEIT = 0;
 
-    /** Maximaler Geschicklichkeitswert. */
     public static final int MAX_GESCHICKLICHKEIT = 100;
 
     private final String name;
