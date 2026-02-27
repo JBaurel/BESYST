@@ -13,9 +13,7 @@ import model.enumType.ReifenTyp;
  *
  * Diese Klasse ist nicht thread-sicher. Der Zugriff muss durch die
  * Synchronisationsschicht geschuetzt werden.
- *
- * @author F1 Simulation Team
- * @version 1.0
+
  */
 public class Auto {
 
@@ -32,12 +30,12 @@ public class Auto {
     private boolean pflichtPitstopErledigt;
 
 
-    // Volatile Flags fuer Thread-Kommunikation (Push-Modell)
+    // Volatile Flags fuer Thread-Kommunikation
     private volatile boolean pitstopAngefordert;
     private volatile ReifenTyp angefordertReifenTyp;
     private volatile boolean imZiel;
 
-    // Position auf der GUI (wird berechnet)
+    // Position auf der GUI
     private double positionX;
     private double positionY;
 
@@ -79,8 +77,8 @@ public class Auto {
         this.team = team;
         this.fahrer = fahrer;
 
-        // Standardwerte setzen
-        // Zufaelligen Startreifentyp waehlen
+        // Standardwerte
+        // Zufaelligen Startreifentyp
         ReifenTyp[] typen = ReifenTyp.values();
         ReifenTyp zufaelligerTyp = typen[(int) (Math.random() * typen.length)];
         this.aktuelleReifen = new Reifen(zufaelligerTyp);
@@ -109,10 +107,8 @@ public class Auto {
      * Berechnet die aktuelle Geschwindigkeit des Autos.
      * Die Geschwindigkeit haengt vom Reifenzustand und
      * der Fahrergeschicklichkeit ab.
-     *
      * @Vorbedingung Keine
      * @Nachbedingung Rueckgabewert liegt zwischen 0.5 und 1.2
-     *
      * @return Geschwindigkeitsfaktor (1.0 = Normalgeschwindigkeit)
      */
     public double berechneGeschwindigkeit() {
@@ -126,17 +122,14 @@ public class Auto {
      * Dies ist der Fall wenn die Reifen kritisch abgenutzt sind
      * oder der Pflicht-Pitstop noch nicht erledigt ist und
      * genuegend Runden verbleiben.
-     *
      * @Vorbedingung verbleibendeRunden muss >= 0 sein
      * @Nachbedingung Rueckgabewert ist true wenn Pitstop empfohlen wird
-     *
      * @param verbleibendeRunden Anzahl der noch zu fahrenden Runden
      * @return true wenn ein Pitstop empfohlen wird
      */
     public boolean istPitstopEmpfohlen(int verbleibendeRunden) {
         // Pflicht-Pitstop noch nicht erledigt und genuegend Runden uebrig
         if (!pflichtPitstopErledigt && verbleibendeRunden > 3) {
-            // Pflicht-Pitstop spätestens wenn 10 Runden uebrig
             if (verbleibendeRunden <= 5) {
                 return true;
             }
@@ -174,7 +167,6 @@ public class Auto {
     /**
      * Setzt das Auto in den Startzustand zurueck.
      * Wird verwendet beim Neustart eines Rennens.
-     *
      * @Vorbedingung Keine
      * @Nachbedingung Auto ist im Startzustand mit frischen Medium-Reifen
      */
@@ -240,7 +232,6 @@ public class Auto {
         this.positionY = pos[1];
     }
 
-    // Getter und Setter
 
     public int getStartnummer() {
         return startnummer;
@@ -335,7 +326,6 @@ public class Auto {
     }
 
 
-    // ========== Volatile Flag Methoden fuer Thread-Kommunikation ==========
 
     /**
      * Fordert einen Pitstop mit dem angegebenen Reifentyp an.

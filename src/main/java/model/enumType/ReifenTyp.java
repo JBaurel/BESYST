@@ -8,9 +8,6 @@ package model.enumType;
  * SOFT: Schnellster Reifen, aber hoechste Abnutzung
  * MEDIUM: Ausgewogener Reifen fuer mittlere Stints
  * HARD: Langsamster Reifen, aber geringste Abnutzung
- *
- * @author F1 Simulation Team
- * @version 1.0
  */
 public enum ReifenTyp {
 
@@ -36,7 +33,6 @@ public enum ReifenTyp {
 
     /**
      * Konstruktor fuer einen Reifentyp.
-     *
      * @param bezeichnung Anzeigename des Reifentyps
      * @param geschwindigkeitsFaktor Faktor fuer die Geschwindigkeit (1.0 = Basis)
      * @param abnutzungsRate Rate der Abnutzung pro Runde

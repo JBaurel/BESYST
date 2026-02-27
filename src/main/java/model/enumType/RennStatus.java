@@ -7,9 +7,6 @@ package model.enumType;
  *
  * Der Statuswechsel erfolgt ausschliesslich durch den RennController
  * und wird durch den RennleiterThread ueberwacht.
- *
- * @author F1 Simulation Team
- * @version 1.0
  */
 public enum RennStatus {
 

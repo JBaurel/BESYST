@@ -10,10 +10,8 @@ public class App extends Application {
     /**
      * Einstiegspunkt der Anwendung.
      * Diese Methode startet die JavaFX-Laufzeitumgebung.
-     *
      * @Vorbedingung Keine
      * @Nachbedingung JavaFX-Anwendung ist gestartet
-     *
      * @param args Kommandozeilenargumente (werden nicht verwendet)
      */
     public static void main(String[] args) {
@@ -24,10 +22,8 @@ public class App extends Application {
     /**
      * Initialisiert und startet die JavaFX-Anwendung.
      * Diese Methode wird von JavaFX nach dem Start aufgerufen.
-     *
      * @Vorbedingung primaryStage darf nicht null sein
      * @Nachbedingung Hauptfenster ist sichtbar und Renndaten initialisiert
-     *
      * @param primaryStage Das Hauptfenster der Anwendung
      * @throws Exception wenn die Initialisierung fehlschlaegt
      */
@@ -57,10 +53,8 @@ public class App extends Application {
     /**
      * Wird aufgerufen wenn die Anwendung beendet wird.
      * Raeumt Ressourcen auf und beendet alle Threads.
-     *
      * @Vorbedingung Keine
      * @Nachbedingung Alle Ressourcen sind freigegeben
-     *
      * @throws Exception wenn das Aufraumen fehlschlaegt
      */
     @Override

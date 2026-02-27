@@ -4,12 +4,8 @@ package model.enumType;
  * Enumeration fuer die verschiedenen Typen von Streckenabschnitten.
  * Jeder Typ definiert spezifische Eigenschaften wie Kapazitaet,
  * Passierzeit und ob Ueberholen moeglich ist.
- *
  * Die Strecke des Nuerburgring GP-Kurses besteht aus einer Kombination
  * dieser Abschnittstypen, die gemeinsam den Streckenverlauf bilden.
- *
- * @author F1 Simulation Team
- * @version 1.0
  */
 public enum StreckenabschnittTyp {
 
@@ -65,7 +61,6 @@ public enum StreckenabschnittTyp {
 
     /**
      * Konstruktor fuer einen Streckenabschnittstyp.
-     *
      * @param bezeichnung Anzeigename des Abschnittstyps
      * @param kapazitaet Maximale Anzahl Autos gleichzeitig
      * @param basisPassierzeitMs Basis-Durchfahrtszeit in Millisekunden
@@ -99,11 +94,9 @@ public enum StreckenabschnittTyp {
      * Prueft ob dieser Abschnittstyp ein kritischer Bereich ist.
      * Kritische Bereiche haben eine begrenzte Kapazitaet und
      * erfordern Synchronisation.
-     *
      * @Vorbedingung Keine
      * @Nachbedingung Rueckgabewert ist true wenn Kapazitaet begrenzt
-     *
-     * @return true wenn der Abschnitt eine begrenzte Kapazitaet hat
+      @return true wenn der Abschnitt eine begrenzte Kapazitaet hat
      */
     public boolean istKritischerBereich() {
         return kapazitaet < Integer.MAX_VALUE;

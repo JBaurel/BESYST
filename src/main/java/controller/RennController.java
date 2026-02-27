@@ -18,20 +18,15 @@ import java.util.*;
  * - Initialisierung aller Synchronisationsobjekte
  * - Erstellung und Start aller Threads
  * - Koordination zwischen View und Model
- * - Steuerung des Rennablaufs (Start, Pause, Stopp)
- *
+ * - Steuerung des Rennablaufs
  * Der Controller implementiert das MVC-Pattern und fungiert als
- * Vermittler zwischen der GUI (View) und den Daten (Model).
+ * Vermittler zwischen der GUI und den Daten.
  *
- * @author F1 Simulation Team
- * @version 1.0
  */
 public class RennController {
 
-    // Model
     private final RennDaten rennDaten;
 
-    // Synchronisationsobjekte
     private Map<Integer, StreckenabschnittMonitor> kurvenMonitore;
     private Map<Integer, SchikaneZugriff> schikaneZugriffe;
     private Map<Team, BoxenZugriff> boxenZugriffe;
@@ -39,16 +34,13 @@ public class RennController {
     private UeberholzonenManager ueberholManager;
     private StartFreigabe startFreigabe;
 
-    // Threads
     private List<AutoThread> autoThreads;
     private List<BoxencrewThread> boxencrewThreads;
     private List<RennstallThread> rennstallThreads;
     private RennleiterThread rennleiterThread;
 
-    // Listener fuer GUI-Updates
     private RennEventListener eventListener;
 
-    // Zustand
     private boolean initialisiert;
     private boolean rennLaeuft;
 
@@ -65,7 +57,6 @@ public class RennController {
 
     /**
      * Erstellt einen neuen RennController.
-     *
      * @Vorbedingung Keine
      * @Nachbedingung Controller ist erstellt, aber noch nicht initialisiert
      */
@@ -74,7 +65,6 @@ public class RennController {
         this.initialisiert = false;
         this.rennLaeuft = false;
 
-        // Logger-Callback fuer GUI setzen
         RennLogger.setLogCallback(nachricht -> {
             if (eventListener != null) {
                 eventListener.onLogNachricht(nachricht);
@@ -86,7 +76,6 @@ public class RennController {
 
     /**
      * Setzt den Event-Listener fuer GUI-Callbacks.
-     *
      * @param listener Der Listener oder null zum Entfernen
      */
     public void setEventListener(RennEventListener listener) {
@@ -96,7 +85,6 @@ public class RennController {
     /**
      * Initialisiert alle Komponenten fuer ein neues Rennen.
      * Diese Methode muss vor dem Start aufgerufen werden.
-     *
      * @Vorbedingung Kein Rennen laeuft aktuell
      * @Nachbedingung Alle Synchronisationsobjekte und Threads sind erstellt
      */
@@ -108,14 +96,11 @@ public class RennController {
 
         RennLogger.info("Initialisiere Rennsimulation...");
 
-        // 1. Autos zuruecksetzen und zufaellige Startaufstellung
         rennDaten.zuruecksetzen();
         erstelleZufaelligeStartaufstellung();
 
-        // 2. Synchronisationsobjekte erstellen
         erstelleSynchronisationsobjekte();
 
-        // 3. Threads erstellen (aber noch nicht starten)
         erstelleThreads();
 
         initialisiert = true;
@@ -131,23 +116,21 @@ public class RennController {
         Collections.shuffle(autos);
 
         // Grid-Formation: 2 Autos pro Reihe, 10 Reihen
-        // Fortschritt 0.0 = Pole Position, negative Werte fuer hintere Plaetze
+        //  Pole Position, negative Werte fuer hintere Plaetze
         double startFortschritt = 0.0;
-        double abstandProReihe = 0.03;  // 3% Abstand zwischen Reihen
-        double abstandInReihe = 0.01;   // 1% Abstand zwischen linker und rechter Seite
+        double abstandProReihe = 0.03;
+        double abstandInReihe = 0.01;
 
         int position = 1;
         for (Auto auto : autos) {
             int reihe = (position - 1) / 2;
             boolean linkeSeite = (position % 2 == 1);
 
-            // Fortschritt berechnen (negative Werte = hinter der Startlinie)
             double fortschritt = startFortschritt - (reihe * abstandProReihe);
             if (!linkeSeite) {
                 fortschritt -= abstandInReihe;
             }
 
-            // Auf gültigen Bereich begrenzen (0.0 - 1.0, aber hier erlauben wir negative Werte für Start)
             auto.setFortschrittImAbschnitt(Math.max(-0.5, fortschritt));
             auto.setAktuellerAbschnittId(0);  // Start/Ziel-Abschnitt
 
@@ -167,7 +150,6 @@ public class RennController {
     private void erstelleSynchronisationsobjekte() {
         Rennstrecke strecke = rennDaten.getStrecke();
 
-        // Monitore fuer enge Kurven
         kurvenMonitore = new HashMap<>();
         schikaneZugriffe = new HashMap<>();
 
@@ -183,20 +165,17 @@ public class RennController {
             }
         }
 
-        // BoxenZugriffe fuer jedes Team
+        // BoxenZugriffe
         boxenZugriffe = new HashMap<>();
         for (Box box : rennDaten.getBoxen()) {
             boxenZugriffe.put(box.getTeam(), new BoxenZugriff(box));
             RennLogger.debug("BoxenZugriff erstellt fuer: " + box.getTeam().getName());
         }
 
-        // Pitstop-Controller
         pitstopController = new PitstopLaneController();
 
-        // Ueberholzonen-Manager
         ueberholManager = new UeberholzonenManager();
 
-        // Start-Freigabe
         startFreigabe = new StartFreigabe(Konfiguration.ANZAHL_AUTOS);
 
         RennLogger.info("Synchronisationsobjekte erstellt: " +
@@ -209,7 +188,6 @@ public class RennController {
      * Erstellt alle Thread-Objekte.
      */
     private void erstelleThreads() {
-        // AutoThreads
         autoThreads = new ArrayList<>();
         for (Auto auto : rennDaten.getAutos()) {
             BoxenZugriff boxZugriff = boxenZugriffe.get(auto.getTeam());
@@ -224,7 +202,6 @@ public class RennController {
         }
         RennLogger.debug(autoThreads.size() + " AutoThreads erstellt");
 
-        // BoxencrewThreads
         boxencrewThreads = new ArrayList<>();
         for (Team team : rennDaten.getTeams()) {
             BoxenZugriff boxZugriff = boxenZugriffe.get(team);
@@ -233,7 +210,6 @@ public class RennController {
         }
         RennLogger.debug(boxencrewThreads.size() + " BoxencrewThreads erstellt");
 
-        // RennstallThreads
         rennstallThreads = new ArrayList<>();
         for (Team team : rennDaten.getTeams()) {
             RennstallThread stallThread = new RennstallThread(team, rennDaten);
@@ -241,7 +217,6 @@ public class RennController {
         }
         RennLogger.debug(rennstallThreads.size() + " RennstallThreads erstellt");
 
-        // RennleiterThread
         rennleiterThread = new RennleiterThread(rennDaten, startFreigabe, autoThreads);
 
         // Rennleiter-Listener fuer GUI-Callbacks setzen
@@ -308,25 +283,25 @@ public class RennController {
         rennLaeuft = true;
 
         // Threads in der richtigen Reihenfolge starten
-        // 1. Boxencrews (warten auf Autos)
+        // Boxencrews
         for (BoxencrewThread crew : boxencrewThreads) {
             crew.start();
         }
         RennLogger.debug("BoxencrewThreads gestartet");
 
-        // 2. Rennstaelle (ueberwachen Strategie)
+        //  Rennstaelle
         for (RennstallThread stall : rennstallThreads) {
             stall.start();
         }
         RennLogger.debug("RennstallThreads gestartet");
 
-        // 3. AutoThreads (warten auf Startfreigabe)
+        //  AutoThreads
         for (AutoThread auto : autoThreads) {
             auto.start();
         }
         RennLogger.debug("AutoThreads gestartet");
 
-        // 4. Rennleiter (fuehrt Startsequenz durch)
+        // Rennleiter
         rennleiterThread.start();
         RennLogger.debug("RennleiterThread gestartet");
 
@@ -366,7 +341,6 @@ public class RennController {
     /**
      * Stoppt das Rennen vorzeitig.
      * Alle Threads werden sicher beendet.
-     *
      * @Vorbedingung Rennen laeuft
      * @Nachbedingung Alle Threads sind beendet, Rennen ist gestoppt
      */
@@ -377,22 +351,18 @@ public class RennController {
 
         RennLogger.info("=== STOPPE RENNEN ===");
 
-        // Rennleiter stoppen (setzt rennBeendet fuer alle AutoThreads)
         if (rennleiterThread != null) {
             rennleiterThread.stoppen();
         }
 
-        // Rennstaelle stoppen
         for (RennstallThread stall : rennstallThreads) {
             stall.stoppen();
         }
 
-        // AutoThreads stoppen
         for (AutoThread auto : autoThreads) {
             auto.stoppen();
         }
 
-        // Boxencrews stoppen
         for (BoxencrewThread crew : boxencrewThreads) {
             crew.stoppen();
         }
@@ -405,13 +375,12 @@ public class RennController {
 
     /**
      * Setzt die Simulationsgeschwindigkeit.
-     *
      * @param geschwindigkeit Neue Geschwindigkeit (1.0, 2.0, 5.0 oder 10.0)
      */
     public void setSimulationsGeschwindigkeit(double geschwindigkeit) {
         rennDaten.setSimulationsGeschwindigkeit(geschwindigkeit);
 
-        // Geschwindigkeit an alle Threads weitergeben
+        // Geschwindigkeit weitergeben
         for (AutoThread auto : autoThreads) {
             auto.setSimulationsGeschwindigkeit(geschwindigkeit);
         }
@@ -425,7 +394,6 @@ public class RennController {
     /**
      * Setzt die Rundenanzahl.
      * Nur vor dem Start moeglich.
-     *
      * @param anzahl Neue Rundenanzahl (20-50)
      */
     public void setRundenanzahl(int anzahl) {
@@ -445,7 +413,6 @@ public class RennController {
         RennLogger.info("Rundenanzahl: " + anzahl);
     }
 
-    // ========== Getter ==========
 
     public RennDaten getRennDaten() {
         return rennDaten;

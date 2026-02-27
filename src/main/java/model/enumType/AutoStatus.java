@@ -8,8 +8,6 @@ package model.enumType;
  * Der Statuswechsel wird durch den zugehoerigen AutoThread gesteuert
  * und beeinflusst die Visualisierung in der GUI.
  *
- * @author F1 Simulation Team
- * @version 1.0
  */
 public enum AutoStatus {
 
@@ -79,26 +77,9 @@ public enum AutoStatus {
     }
 
     /**
-     * Prueft ob das Auto aktiv am Rennen teilnimmt.
-     * Ein aktives Auto kann Positionen wechseln und Runden absolvieren.
-     *
-     * @Vorbedingung Keine
-     * @Nachbedingung Rueckgabewert ist true wenn Auto aktiv faehrt
-     *
-     * @return true wenn das Auto aktiv im Rennen ist
-     */
-    public boolean istAktiv() {
-        return this != IN_STARTAUFSTELLUNG
-                && this != IM_ZIEL
-                && this != AUSGEFALLEN;
-    }
-
-    /**
      * Prueft ob das Auto sich gerade in der Boxengasse befindet.
-     *
      * @Vorbedingung Keine
      * @Nachbedingung Rueckgabewert ist true bei Box-bezogenen Status
-     *
      * @return true wenn das Auto in der Boxengasse ist
      */
     public boolean istInBoxengasse() {
