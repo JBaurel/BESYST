@@ -70,8 +70,9 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.12.1</version>
                 <configuration>
-                    <source>23</source>
-                    <target>23</target>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
             </plugin>
 
@@ -113,7 +114,98 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.6.3</version>
                 <configuration>
-                    <source>23</source>
+                    <source>${maven.compiler.source}</source>
+
+                    <!-- Encoding stabilisieren (Umlaute/Sonderzeichen) -->
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <docencoding>${project.build.sourceEncoding}</docencoding>
+                    <charset>${project.build.sourceEncoding}</charset>
+
+                    <!-- verhindert Build-Abbruch durch DocLint/Warnungen -->
+                    <failOnError>false</failOnError>
+                    <doclint>none</doclint>
+
+                    <!-- Custom Tags -->
+                    <tags>
+                        <tag>
+                            <name>Vorbedingung</name>
+                            <placement>a</placement>
+                            <head>Vorbedingung:</head>
+                        </tag>
+                        <tag>
+                            <name>Nachbedingung</name>
+                            <placement>a</placement>
+                            <head>Nachbedingung:</head>
+                        </tag>
+                    </tags>
+                </configuration>
+            </plugin>
+
+            <!-- Plugin site Maven -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.12.1</version>
+            </plugin>
+
+            <!-- Plugin  (tests, dependencies) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>3.5.0</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.3</version>
+
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>${main.class}</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>3.5.0</version>
+            </plugin>
+
+            <!-- JavaDoc auch im "mvn site" korrekt (inkl. Custom Tags) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.6.3</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <docencoding>${project.build.sourceEncoding}</docencoding>
+                    <charset>${project.build.sourceEncoding}</charset>
+
+                    <failOnError>false</failOnError>
+                    <doclint>none</doclint>
+
                     <tags>
                         <tag>
                             <name>Vorbedingung</name>
@@ -129,6 +221,5 @@
                 </configuration>
             </plugin>
         </plugins>
-    </build>
-
+    </reporting>
 </project>
